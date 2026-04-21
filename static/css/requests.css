@@ -42,3 +42,14 @@
   font-size: 14px;
   cursor: pointer;
 }
+
+.btn-decline {
+  background: white;
+  color: #c0392b;
+  border: 1.5px solid #c0392b;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}

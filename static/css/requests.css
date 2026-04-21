@@ -21,3 +21,13 @@
   padding: 3px 10px;
   border-radius: 20px;
 }
+
+
+.badge-pending {
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}

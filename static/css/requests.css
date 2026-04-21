@@ -53,3 +53,15 @@
   font-size: 14px;
   cursor: pointer;
 }
+
+
+.btn-can-chat {
+  background: #f0f0f0;
+  color: #444;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+}

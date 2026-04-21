@@ -6,55 +6,47 @@
 
 {% block content %}
 <div class="chat-wrapper">
+
   <div class="chat-heading">
     <h2 class="chat-title">Messages</h2>
     <p class="chat-subtitle">Chat with your accepted connections.</p>
   </div>
+
   <div class="chat-container">
-    <!-- LEFT SIDEBAR — Connections List -->
+
+    <!-- LEFT SIDEBAR -->
     <div class="chat-sidebar">
       <div class="sidebar-label">CONNECTIONS</div>
-      <div class="connection-item active">
-        <div class="avatar">SA</div>
+
+      {% for conn in connections %}
+      <div class="connection-item {% if loop.first %}active{% endif %}"
+           data-user-id="{{ conn.id }}"
+           data-name="{{ conn.name }}"
+           data-avatar="{{ conn.avatar }}">
+        <div class="avatar">{{ conn.avatar }}</div>
         <div class="connection-info">
-          <div class="connection-name">Sara Ali</div>
-          <div class="connection-preview">Hey! Ready to start?</div>
+          <div class="connection-name">{{ conn.name }}</div>
+          <div class="connection-preview">Click to view messages</div>
         </div>
       </div>
-      <div class="connection-item">
-        <div class="avatar">JL</div>
-        <div class="connection-info">
-          <div class="connection-name">Jake Lee</div>
-          <div class="connection-preview">Thanks for accepting!</div>
-        </div>
-      </div>
+      {% endfor %}
+
     </div>
-    <!-- RIGHT PANEL — Message Thread -->
+
+    <!-- RIGHT PANEL -->
     <div class="chat-main">
-      <!-- Chat Header -->
+
       <div class="chat-header">
-        <div class="avatar small">SA</div>
-        <span class="chat-header-name">Sara Ali</span>
+        <div class="avatar small" id="chat-avatar">
+          {{ connections[0].avatar if connections }}
+        </div>
+        <span class="chat-header-name" id="chat-header-name">
+          {{ connections[0].name if connections }}
+        </span>
       </div>
-      <!-- Messages -->
-      <div class="chat-messages" id="chat-messages">
-        <div class="message received">
-          <div class="bubble">Hey! Thanks for accepting my request.</div>
-        </div>
-        <div class="message sent">
-          <div class="bubble">No problem! When do you want to start learning Python?</div>
-        </div>
-        <div class="message received">
-          <div class="bubble">How about tomorrow at 3 PM?</div>
-        </div>
-        <div class="message sent">
-          <div class="bubble">Sounds good! I'll send you some resources beforehand.</div>
-        </div>
-        <div class="message received">
-          <div class="bubble">Hey! Ready to start?</div>
-        </div>
-      </div>
-      <!-- Input Bar -->
+
+      <div class="chat-messages" id="chat-messages"></div>
+
       <div class="chat-input-bar">
         <input
           type="text"
@@ -62,7 +54,7 @@
           class="chat-input"
           placeholder="Type a message..."
         />
-        <button class="send-btn">
+        <button class="send-btn" id="send-btn">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
@@ -71,6 +63,7 @@
           </svg>
         </button>
       </div>
+
     </div>
   </div>
 </div>

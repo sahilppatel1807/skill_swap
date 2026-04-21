@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="login-hero">
+  <div class="login-wrapper">
+
+    <div class="login-left">
+      <span class="login-label">Join SkillSwap</span>
+      <h1 class="login-title">Create Account</h1>
+      <p class="login-desc">
+        Start exchanging skills with students across campus.
+      </p>
+    </div>
+
+    <div class="login-card">
+      <h2 class="login-card-title">Sign Up</h2>
+
+      <form class="login-form">
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">Name</label>
+          <input type="text" class="form-input-custom">
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">Email</label>
+          <input type="email" class="form-input-custom">
+        </div>
+
+        <div class="form-group-custom">
+          <label class="form-label-custom">Password</label>
+          <input type="password" class="form-input-custom">
+        </div>
+
+        <button type="button" class="btn-primary-custom login-submit-btn">
+          Create Account
+        </button>
+
+        <p class="login-footer-text">
+          Already have an account?
+          <a href="/login" class="login-signup-link">Login</a>
+        </p>
+
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

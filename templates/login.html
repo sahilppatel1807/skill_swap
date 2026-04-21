@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="login-hero">
+  <div class="login-wrapper">
+
+    <div class="login-left">
+      <span class="login-label">Campus Skill Exchange Platform</span>
+      <h1 class="login-title">Welcome Back.<br>Keep Learning.</h1>
+      <p class="login-desc">
+        Log in to continue exchanging skills, connecting with peers,
+        and growing your profile in the SkillSwap community.
+      </p>
+
+      <div class="login-benefits">
+        <div class="login-benefit">
+          <span class="benefit-icon">•</span>
+          <span>Browse skills shared by other students</span>
+        </div>
+        <div class="login-benefit">
+          <span class="benefit-icon">•</span>
+          <span>Manage your requests and conversations</span>
+        </div>
+        <div class="login-benefit">
+          <span class="benefit-icon">•</span>
+          <span>Keep building your campus learning network</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h2 class="login-card-title">Login</h2>
+      <p class="login-card-subtitle">Enter your account details below.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-3">
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category if category != 'message' else 'info' }}" role="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <div class="form-group-custom">
+          <label for="email" class="form-label-custom">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-input-custom"
+            placeholder="Enter your email"
+            required
+          >
+        </div>
+
+        <div class="form-group-custom">
+          <label for="password" class="form-label-custom">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input-custom"
+            placeholder="Enter your password"
+            required
+          >
+        </div>
+
+        <div class="login-options">
+          <label class="remember-wrap">
+            <input type="checkbox" name="remember">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary-custom login-submit-btn">
+          Login
+        </button>
+
+        <p class="login-footer-text">
+          Don’t have an account?
+          <a href="{{ url_for('signup') }}" class="login-signup-link">Sign up</a>
+        </p>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

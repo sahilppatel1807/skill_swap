@@ -31,3 +31,14 @@
   padding: 3px 10px;
   border-radius: 20px;
 }
+
+.btn-accept {
+  background: #1a3a6b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}

@@ -42,9 +42,6 @@ def requests():
 def logout():
     return redirect(url_for('index'))
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
 
 # ── Chat Routes ──────────────────────────────────────────────────
 @app.route('/chat')
@@ -84,6 +81,28 @@ def send_message():
         'text':   text
     })
 
+    return jsonify({ 'status': 'ok' })
+
+# ── Profile Routes ──────────────────────────────────────────────────
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
+
+@app.route('/profile/skills/add', methods=['POST'])
+def add_skill():
+    data = request.get_json()
+    # TODO: save to database
+    return jsonify({ 'status': 'ok' })
+
+@app.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
+def edit_skill(skill_id):
+    data = request.get_json()
+    # TODO: update in database
+    return jsonify({ 'status': 'ok' })
+
+@app.route('/profile/skills/delete/<int:skill_id>', methods=['POST'])
+def delete_skill(skill_id):
+    # TODO: delete from database
     return jsonify({ 'status': 'ok' })
 
 if __name__ == '__main__':

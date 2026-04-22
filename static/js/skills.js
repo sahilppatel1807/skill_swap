@@ -37,7 +37,7 @@ $(document).ready(function () {
     //     showConfirmation(skillName);
     //   }
     // });
-    // ────────────────────────────────────────────────────────
+    // 
 
     // Temporary feedback
     var btn = $(this);

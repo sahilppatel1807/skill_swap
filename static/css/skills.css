@@ -1,0 +1,160 @@
+/* ── Page Layout ────────────────────────────────────────────── */
+.skills-wrapper {
+  max-width: 1060px;
+  margin: 24px auto;
+  padding: 0 20px;
+}
+
+.skills-heading {
+  margin-bottom: 20px;
+}
+
+.skills-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.skills-subtitle {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Filter Pills ───────────────────────────────────────────── */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.filter-btn {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 99px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  border-color: #1a3a6b;
+  color: #1a3a6b;
+}
+
+.filter-btn.active {
+  background: #1a3a6b;
+  border-color: #1a3a6b;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Skills Grid ────────────────────────────────────────────── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* ── Skill Card ─────────────────────────────────────────────── */
+.skill-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.skill-card:hover {
+  border-color: #c8d5e8;
+  transform: translateY(-2px);
+}
+
+.skill-card-inner {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ── Category Badge ─────────────────────────────────────────── */
+.skill-badge {
+  display: inline-block;
+  background: #fef3e2;
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  margin-bottom: 10px;
+  align-self: flex-start;
+}
+
+/* ── Card Content ───────────────────────────────────────────── */
+.skill-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+}
+
+.skill-desc {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  flex: 1;
+}
+
+.skill-author {
+  font-size: 12px;
+  color: #999;
+  margin: 0 0 16px;
+}
+
+/* ── Request Button ─────────────────────────────────────────── */
+.request-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #1a3a6b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-start;
+}
+
+.request-btn:hover {
+  background: #15305a;
+}
+
+.request-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Hidden cards when filtered ─────────────────────────────── */
+.skill-card.hidden {
+  display: none;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+}

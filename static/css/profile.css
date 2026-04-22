@@ -1,7 +1,7 @@
 /* ── Page Layout ────────────────────────────────────────────── */
 .profile-wrapper {
   max-width: 700px;
-  margin: 40px auto;
+  margin: 24px auto;
   padding: 0 20px;
 }
 
@@ -10,7 +10,7 @@
   background: #ffffff;
   border: 1px solid #e8e8e8;
   border-radius: 14px;
-  padding: 28px 32px;
+  padding: 20px 24px;
   margin-bottom: 32px;
 }
 
@@ -102,7 +102,7 @@
 }
 
 .skill-card-body {
-  padding: 18px 20px;
+  padding: 14px 18px;
 }
 
 .skill-card-top {

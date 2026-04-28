@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="home-hero">
+  <h1>Learn a skill.<br>Teach what you know.</h1>
+  <p>SkillSwap connects people who want to learn with people who want to teach — for free, one skill at a time.</p>
+  <div class="home-cta">
+    <a href="{{ url_for('signup') }}" class="btn-primary-custom">Get started</a>
+    <a href="{{ url_for('login') }}" class="btn-secondary-custom">Sign in</a>
+  </div>
+</div>
+
+<!-- Features -->
+<div class="home-features">
+  <div class="feature-card">
+    <div class="feature-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+    </div>
+    <div class="feature-title">Learn at your pace</div>
+    <p class="feature-desc">Connect with someone who already knows what you want to learn and set your own schedule.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+    </div>
+    <div class="feature-title">Teach what you love</div>
+    <p class="feature-desc">Share your expertise with others and build a reputation in your community.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </div>
+    <div class="feature-title">Chat directly</div>
+    <p class="feature-desc">Message your connections, coordinate sessions, and stay in touch — all in one place.</p>
+  </div>
+</div>
+
+<!-- How it works -->
+<div class="home-steps">
+  <h2>How it works</h2>
+  <div class="steps-grid">
+    <div>
+      <div class="step-number">1</div>
+      <div class="step-title">Create your profile</div>
+      <p class="step-desc">List the skills you can teach and the ones you want to learn.</p>
+    </div>
+    <div>
+      <div class="step-number">2</div>
+      <div class="step-title">Send a request</div>
+      <p class="step-desc">Browse other users and send a swap request to someone who matches.</p>
+    </div>
+    <div>
+      <div class="step-number">3</div>
+      <div class="step-title">Start swapping</div>
+      <p class="step-desc">Once accepted, chat and start learning from each other.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="home-stats">
+  <div class="stat-card">
+    <div class="stat-number">500+</div>
+    <div class="stat-label">Active learners</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">120+</div>
+    <div class="stat-label">Skills listed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">300+</div>
+    <div class="stat-label">Swaps completed</div>
+  </div>
+</div>
+
+<!-- Bottom CTA -->
+<div class="home-bottom-cta">
+  <h2>Ready to start swapping?</h2>
+  <p>Join hundreds of people already learning something new.</p>
+  <a href="{{ url_for('signup') }}" class="btn-white">Create a free account</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}{% endblock %}

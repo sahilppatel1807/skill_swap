@@ -5,49 +5,97 @@
 {% endblock %}
 
 {% block content %}
-<section class="login-hero">
-  <div class="login-wrapper">
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-    <div class="login-left">
-      <span class="login-label">Join SkillSwap</span>
-      <h1 class="login-title">Create Account</h1>
-      <p class="login-desc">
-        Start exchanging skills with students across campus.
-      </p>
-    </div>
+    <a class="auth-logo" href="{{ url_for('index') }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      SkillSwap
+    </a>
 
-    <div class="login-card">
-      <h2 class="login-card-title">Sign Up</h2>
+    <h1 class="auth-title">Create an account</h1>
+    <p class="auth-subtitle">Join SkillSwap and start sharing skills today.</p>
 
-      <form class="login-form">
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
 
-        <div class="form-group-custom">
-          <label class="form-label-custom">Name</label>
-          <input type="text" class="form-input-custom">
+    <form method="POST" action="{{ url_for('signup') }}">
+      <div class="auth-row">
+        <div>
+          <label class="auth-label" for="first_name">First name</label>
+          <input
+            class="auth-input"
+            type="text"
+            id="first_name"
+            name="first_name"
+            placeholder="Alex"
+            required
+            autocomplete="given-name"
+          >
         </div>
-
-        <div class="form-group-custom">
-          <label class="form-label-custom">Email</label>
-          <input type="email" class="form-input-custom">
+        <div>
+          <label class="auth-label" for="last_name">Last name</label>
+          <input
+            class="auth-input"
+            type="text"
+            id="last_name"
+            name="last_name"
+            placeholder="Smith"
+            required
+            autocomplete="family-name"
+          >
         </div>
+      </div>
 
-        <div class="form-group-custom">
-          <label class="form-label-custom">Password</label>
-          <input type="password" class="form-input-custom">
-        </div>
+      <label class="auth-label" for="email">Email</label>
+      <input
+        class="auth-input"
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+      >
 
-        <button type="button" class="btn-primary-custom login-submit-btn">
-          Create Account
-        </button>
+      <label class="auth-label" for="password">Password</label>
+      <input
+        class="auth-input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="••••••••"
+        required
+        autocomplete="new-password"
+        minlength="8"
+      >
+      <p class="password-hint">Must be at least 8 characters.</p>
 
-        <p class="login-footer-text">
-          Already have an account?
-          <a href="/login" class="login-signup-link">Login</a>
-        </p>
+      <label class="auth-label" for="confirm_password">Confirm password</label>
+      <input
+        class="auth-input"
+        type="password"
+        id="confirm_password"
+        name="confirm_password"
+        placeholder="••••••••"
+        required
+        autocomplete="new-password"
+      >
 
-      </form>
-    </div>
+      <button class="auth-btn" type="submit">Create account</button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </p>
 
   </div>
-</section>
+</div>
 {% endblock %}
+
+{% block scripts %}{% endblock %}

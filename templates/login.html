@@ -5,93 +5,57 @@
 {% endblock %}
 
 {% block content %}
-<section class="login-hero">
-  <div class="login-wrapper">
+<div class="auth-wrapper">
+  <div class="auth-card">
 
-    <div class="login-left">
-      <span class="login-label">Campus Skill Exchange Platform</span>
-      <h1 class="login-title">Welcome Back.<br>Keep Learning.</h1>
-      <p class="login-desc">
-        Log in to continue exchanging skills, connecting with peers,
-        and growing your profile in the SkillSwap community.
-      </p>
+    <a class="auth-logo" href="{{ url_for('index') }}">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      SkillSwap
+    </a>
 
-      <div class="login-benefits">
-        <div class="login-benefit">
-          <span class="benefit-icon">•</span>
-          <span>Browse skills shared by other students</span>
-        </div>
-        <div class="login-benefit">
-          <span class="benefit-icon">•</span>
-          <span>Manage your requests and conversations</span>
-        </div>
-        <div class="login-benefit">
-          <span class="benefit-icon">•</span>
-          <span>Keep building your campus learning network</span>
-        </div>
-      </div>
-    </div>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to your account to continue.</p>
 
-    <div class="login-card">
-      <h2 class="login-card-title">Login</h2>
-      <p class="login-card-subtitle">Enter your account details below.</p>
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
 
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="mb-3">
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category if category != 'message' else 'info' }}" role="alert">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
+    <form method="POST" action="{{ url_for('login') }}">
+      <label class="auth-label" for="email">Email</label>
+      <input
+        class="auth-input"
+        type="email"
+        id="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        autocomplete="email"
+      >
 
-      <form method="POST" action="{{ url_for('login') }}" class="login-form">
-        <div class="form-group-custom">
-          <label for="email" class="form-label-custom">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="form-input-custom"
-            placeholder="Enter your email"
-            required
-          >
-        </div>
+      <label class="auth-label" for="password">Password</label>
+      <input
+        class="auth-input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="••••••••"
+        required
+        autocomplete="current-password"
+      >
 
-        <div class="form-group-custom">
-          <label for="password" class="form-label-custom">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-input-custom"
-            placeholder="Enter your password"
-            required
-          >
-        </div>
+      <button class="auth-btn" type="submit">Sign in</button>
+    </form>
 
-        <div class="login-options">
-          <label class="remember-wrap">
-            <input type="checkbox" name="remember">
-            <span>Remember me</span>
-          </label>
-          <a href="#" class="forgot-link">Forgot password?</a>
-        </div>
-
-        <button type="submit" class="btn-primary-custom login-submit-btn">
-          Login
-        </button>
-
-        <p class="login-footer-text">
-          Don’t have an account?
-          <a href="{{ url_for('signup') }}" class="login-signup-link">Sign up</a>
-        </p>
-      </form>
-    </div>
+    <p class="auth-footer">
+      Don't have an account? <a href="{{ url_for('signup') }}">Create one</a>
+    </p>
 
   </div>
-</section>
+</div>
 {% endblock %}
+
+{% block scripts %}{% endblock %}

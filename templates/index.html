@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="hero-inner">
+
+    <span class="hero-badge">Campus Skill Exchange Platform</span>
+
+    <h1 class="hero-title">
+      Exchange Skills.<br>
+      <span class="hero-title-blue">Learn Together.</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      SkillSwap connects students on campus to teach and learn from
+      each other. Share your expertise, pick up new skills — all for free.
+    </p >
+
+    <div class="hero-buttons">
+      <a href=" 'signup') }}" class="btn-primary">Get Started →</a >
+      <a href="{{ url_for('login') }}"  class="btn-secondary">Login</a >
+    </div>
+
+  </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="features-section">
+  <div class="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#1a3a6b" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <h3 class="feature-title">Find Peers</h3>
+      <p class="feature-desc">Connect with students who have skills you want to learn.</p >
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#1a3a6b" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"/>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+          <polyline points="7 23 3 19 7 15"/>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+        </svg>
+      </div>
+      <h3 class="feature-title">Exchange Skills</h3>
+      <p class="feature-desc">Offer what you know, get what you need — no money involved.</p >
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#1a3a6b" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h3 class="feature-title">Grow Together</h3>
+      <p class="feature-desc">Build a learning community right on your campus.</p >
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

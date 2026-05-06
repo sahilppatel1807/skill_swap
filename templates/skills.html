@@ -13,24 +13,55 @@
     <p class="skills-subtitle">Find skills you want to learn from peers.</p>
   </div>
 
+  <!-- Search Bar -->
+  <form method="GET" action="/skills" class="search-form">
+    <input type="hidden" name="category" value="{{ current_category }}">
+    <input type="text" name="search" value="{{ current_search }}" placeholder="Search skills...">
+    <button type="submit">Search</button>
+  </form>
+
   <!-- Filter Pills -->
   <div class="filter-row">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="Programming">Programming</button>
-    <button class="filter-btn" data-filter="Design">Design</button>
-    <button class="filter-btn" data-filter="Music">Music</button>
-    <button class="filter-btn" data-filter="Communication">Communication</button>
+    <a href="/skills"
+       class="filter-btn {% if not current_category %}active{% endif %}">All</a>
+    {% for cat in categories %}
+    <a href="/skills?category={{ cat }}"
+       class="filter-btn {% if current_category == cat %}active{% endif %}">{{ cat }}</a>
+    {% endfor %}
   </div>
+
+  <!-- Post a Skill Form (logged-in users only) -->
+  {% if current_user.is_authenticated %}
+  <div class="post-skill-form">
+    <h3>Post a Skill</h3>
+    <form method="POST" action="/skills/new">
+      <input  type="text" name="title"       placeholder="Skill title"      required maxlength="100">
+      <input  type="text" name="category"    placeholder="Category"         required>
+      <textarea           name="description" placeholder="Description..."   maxlength="500"></textarea>
+      <button type="submit">Post Skill</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   <!-- Skills Grid -->
   <div class="skills-grid" id="skills-grid">
 
-    <div class="skill-card" data-category="Programming">
+    {% for skill in skills %}
+    <div class="skill-card" data-category="{{ skill.category }}">
       <div class="skill-card-inner">
-        <span class="skill-badge">Programming</span>
-        <h3 class="skill-name">Python Programming</h3>
-        <p class="skill-desc">3 years of Python experience. Can help with basics, data science, and automation scripts.</p>
-        <p class="skill-author">by Arjun Mehta</p>
+        <span class="skill-badge">{{ skill.category }}</span>
+        <h3 class="skill-name">{{ skill.name }}</h3>
+        <p class="skill-desc">{{ skill.description }}</p>
+        <p class="skill-author">by {{ skill.owner.username }}</p>
         <button class="request-btn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
@@ -42,150 +73,9 @@
         </button>
       </div>
     </div>
-
-    <div class="skill-card" data-category="Design">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Design</span>
-        <h3 class="skill-name">UI/UX Design</h3>
-        <p class="skill-desc">Figma & Adobe XD expert. Let me help you design beautiful interfaces for your projects.</p>
-        <p class="skill-author">by Priya Sharma</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Music">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Music</span>
-        <h3 class="skill-name">Guitar</h3>
-        <p class="skill-desc">Been playing for 5 years. Can teach chords, strumming patterns, and basic music theory.</p>
-        <p class="skill-author">by Carlos Rivera</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Communication">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Communication</span>
-        <h3 class="skill-name">Public Speaking</h3>
-        <p class="skill-desc">Debate club president. I'll help you ace presentations and overcome stage fright.</p>
-        <p class="skill-author">by Emily Chen</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Programming">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Programming</span>
-        <h3 class="skill-name">Machine Learning</h3>
-        <p class="skill-desc">Research assistant in ML lab. Happy to walk you through algorithms and model training.</p>
-        <p class="skill-author">by David Kim</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Design">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Design</span>
-        <h3 class="skill-name">Photography</h3>
-        <p class="skill-desc">Specializing in portrait and landscape photography. Can teach composition and editing.</p>
-        <p class="skill-author">by Sara Ali</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Programming">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Programming</span>
-        <h3 class="skill-name">React.js</h3>
-        <p class="skill-desc">Building web apps with React for 2 years. Can help with hooks, state management, and component patterns.</p>
-        <p class="skill-author">by Jane Doe</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Design">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Design</span>
-        <h3 class="skill-name">Video Editing</h3>
-        <p class="skill-desc">Experienced with Premiere Pro and After Effects. Can teach editing, color grading, and motion graphics.</p>
-        <p class="skill-author">by Lena Park</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
-
-    <div class="skill-card" data-category="Music">
-      <div class="skill-card-inner">
-        <span class="skill-badge">Music</span>
-        <h3 class="skill-name">Piano</h3>
-        <p class="skill-desc">Classical piano training for 8 years. Can teach music theory, sight reading, and performance.</p>
-        <p class="skill-author">by Jake Lee</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
-          Request
-        </button>
-      </div>
-    </div>
+    {% else %}
+    <p class="no-results">No skills found. Be the first to post one!</p>
+    {% endfor %}
 
   </div>
 </div>

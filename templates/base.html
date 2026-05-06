@@ -11,7 +11,7 @@
   <!-- Shared base styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
-  <!-- Per-page CSS (each page injects its own stylesheet here) -->
+  <!-- Per-page CSS -->
   {% block styles %}{% endblock %}
 </head>
 <body>
@@ -19,48 +19,59 @@
   <!-- ===== NAVBAR ===== -->
   <nav class="navbar navbar-expand-lg bg-white border-bottom px-4 py-0" style="height: 60px;">
 
-    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark" href="{{ url_for('index') }}">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark"
+       href=" 'index') }}">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+           stroke="#1a3a6b" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
       </svg>
       SkillSwap
-    </a>
+    </a >
 
     <div class="ms-auto d-flex align-items-center gap-1">
+      {% block nav_links %}
+      <!-- Default nav — Skills, Requests, Chat, Profile, Logout -->
       <a href="{{ url_for('skills') }}"
-         class="nav-link px-3 py-2 rounded {% if request.endpoint == 'skills' %}active-link{% endif %}">
+         class="nav-link px-3 py-2 rounded
+                {% if request.endpoint == 'skills' %}active-link{% endif %}">
         Skills
-      </a>
-      <a href="{{ url_for('requests') }}"
-         class="nav-link px-3 py-2 rounded {% if request.endpoint == 'requests' %}active-link{% endif %}">
+      </a >
+      <a href="{{ url_for('requests_page') }}"
+         class="nav-link px-3 py-2 rounded
+                {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
         Requests
-      </a>
+      </a >
       <a href="{{ url_for('chat') }}"
-         class="nav-link px-3 py-2 rounded {% if request.endpoint == 'chat' %}active-link{% endif %}">
+         class="nav-link px-3 py-2 rounded
+                {% if request.endpoint == 'chat' %}active-link{% endif %}">
         Chat
-      </a>
+      </a >
       <a href="{{ url_for('profile') }}"
-         class="nav-link px-3 py-2 rounded {% if request.endpoint == 'profile' %}active-link{% endif %}">
+         class="nav-link px-3 py-2 rounded
+                {% if request.endpoint == 'profile' %}active-link{% endif %}">
         Profile
-      </a>
+      </a >
       <a href="{{ url_for('logout') }}"
-         class="nav-link px-3 py-2 rounded d-flex align-items-center gap-1 text-danger logout-link">
+         class="nav-link px-3 py-2 rounded d-flex align-items-center gap-1
+                text-danger logout-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
           <line x1="21" y1="12" x2="9" y2="12"/>
         </svg>
         Logout
-      </a>
+      </a >
+      {% endblock %}
     </div>
 
   </nav>
   <!-- ===== END NAVBAR ===== -->
 
-  <!-- Page content goes here -->
+  <!-- Page content -->
   <main>
     {% block content %}{% endblock %}
   </main>
@@ -74,72 +85,3 @@
 
 </body>
 </html>
-
-{% extends "base.html" %}
-
-{% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-{% endblock %}
-
-{% block nav_links %}
-<a href=" 'login') }}" class="index-nav-login">Login</a >
-<a href="{{ url_for('signup') }}" class="index-nav-signup">Sign Up</a >
-{% endblock %}
-
-{% block content %}
-<div class="auth-wrapper">
-  <div class="auth-card">
-
-    <div class="auth-heading">
-      <h2 class="auth-title">Create an account</h2>
-      <p class="auth-subtitle">Join SkillSwap and start exchanging skills.</p >
-    </div>
-
-    {% if error %}
-    <div class="auth-error">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" action="{{ url_for('signup') }}">
-
-      <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <input type="text" name="name" class="auth-input"
-               placeholder="Jane Doe" required>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="auth-input"
-               placeholder="jane@campus.edu" required>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" name="password" class="auth-input"
-               placeholder="••••••••" required>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Course / Major</label>
-        <input type="text" name="course" class="auth-input"
-               placeholder="Computer Science">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Bio</label>
-        <textarea name="bio" class="auth-input auth-textarea"
-                  placeholder="Tell us about yourself and the skills you'd like to share..."></textarea>
-      </div>
-
-      <button type="submit" class="auth-btn">Sign Up</button>
-
-    </form>
-
-    <p class="auth-footer">
-      Already have an account?
-      <a href="{{ url_for('login') }}" class="auth-link">Login</a >
-    </p >
-
-  </div>
-</div>
-{% endblock %}

@@ -38,9 +38,9 @@
                 {% if request.endpoint == 'skills' %}active-link{% endif %}">
         Skills
       </a >
-      <a href="{{ url_for('requests_page') }}"
+      <a href="{{ url_for('requests') }}"
          class="nav-link px-3 py-2 rounded
-                {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
+                {% if request.endpoint == 'requests' %}active-link{% endif %}">
         Requests
       </a >
       <a href="{{ url_for('chat') }}"

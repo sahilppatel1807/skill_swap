@@ -1,101 +1,68 @@
 {% extends "base.html" %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block nav_links %}
+<a href=" 'login') }}" class="index-nav-login">Login</a >
+<a href="{{ url_for('signup') }}" class="index-nav-signup">Sign Up</a >
 {% endblock %}
 
 {% block content %}
 <div class="auth-wrapper">
   <div class="auth-card">
 
-    <a class="auth-logo" href="{{ url_for('index') }}">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-           stroke="#1a3a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-      </svg>
-      SkillSwap
-    </a>
-
-    <h1 class="auth-title">Create an account</h1>
-    <p class="auth-subtitle">Join SkillSwap and start sharing skills today.</p>
+    <div class="auth-heading">
+      <h2 class="auth-title">Create an account</h2>
+      <p class="auth-subtitle">Join SkillSwap and start exchanging skills.</p >
+    </div>
 
     {% if error %}
     <div class="auth-error">{{ error }}</div>
     {% endif %}
 
     <form method="POST" action="{{ url_for('signup') }}">
-      <div class="auth-row">
-        <div>
-          <label class="auth-label" for="first_name">First name</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="first_name"
-            name="first_name"
-            placeholder="Alex"
-            required
-            autocomplete="given-name"
-          >
-        </div>
-        <div>
-          <label class="auth-label" for="last_name">Last name</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="last_name"
-            name="last_name"
-            placeholder="Smith"
-            required
-            autocomplete="family-name"
-          >
-        </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="auth-input"
+               placeholder="Jane Doe" required>
       </div>
 
-      <label class="auth-label" for="email">Email</label>
-      <input
-        class="auth-input"
-        type="email"
-        id="email"
-        name="email"
-        placeholder="you@example.com"
-        required
-        autocomplete="email"
-      >
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="auth-input"
+               placeholder="jane@campus.edu" required>
+      </div>
 
-      <label class="auth-label" for="password">Password</label>
-      <input
-        class="auth-input"
-        type="password"
-        id="password"
-        name="password"
-        placeholder="••••••••"
-        required
-        autocomplete="new-password"
-        minlength="8"
-      >
-      <p class="password-hint">Must be at least 8 characters.</p>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="auth-input"
+               placeholder="••••••••" required>
+      </div>
 
-      <label class="auth-label" for="confirm_password">Confirm password</label>
-      <input
-        class="auth-input"
-        type="password"
-        id="confirm_password"
-        name="confirm_password"
-        placeholder="••••••••"
-        required
-        autocomplete="new-password"
-      >
+      <div class="form-group">
+        <label class="form-label">Course / Major</label>
+        <input type="text" name="course" class="auth-input"
+               placeholder="Computer Science">
+      </div>
 
-      <button class="auth-btn" type="submit">Create account</button>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea name="bio" class="auth-input auth-textarea"
+                  placeholder="Tell us about yourself and the skills you'd like to share..."></textarea>
+      </div>
+
+      <button type="submit" class="auth-btn">Sign Up</button>
+
     </form>
 
     <p class="auth-footer">
-      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
-    </p>
+      Already have an account?
+      <a href="{{ url_for('login') }}" class="auth-link">Login</a >
+    </p >
 
   </div>
 </div>
 {% endblock %}
-
-{% block scripts %}{% endblock %}

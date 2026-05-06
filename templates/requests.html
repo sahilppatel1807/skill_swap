@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/requests.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h1 class="fw-bold mb-1">Skill Requests</h1>
+    <p class="text-muted mb-3">Manage incoming skill exchange requests.</p>
+
+    <div class="info-banner mb-4">
+        💬 Accepted users can chat with you on the Chat page.
+    </div>
+
+    <div class="request-card mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1 fw-semibold">Python Programming</h5>
+                <p class="text-muted mb-2 small">Requested by Sara Ali</p>
+                <span class="badge-accepted">Accepted</span>
+            </div>
+            <button class="btn-can-chat">💬 Can Chat</button>
+        </div>
+    </div>
+
+    <div class="request-card mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1 fw-semibold">UI/UX Design</h5>
+                <p class="text-muted mb-2 small">Requested by Tom Wilson</p>
+                <span class="badge-pending">Pending</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-accept">✔ Accept</button>
+                <button class="btn-decline">✘ Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="request-card mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1 fw-semibold">Guitar</h5>
+                <p class="text-muted mb-2 small">Requested by Jake Lee</p>
+                <span class="badge-accepted">Accepted</span>
+            </div>
+            <button class="btn-can-chat">💬 Can Chat</button>
+        </div>
+    </div>
+
+    <div class="request-card mb-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1 fw-semibold">Public Speaking</h5>
+                <p class="text-muted mb-2 small">Requested by Lena Park</p>
+                <span class="badge-pending">Pending</span>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn-accept">✔ Accept</button>
+                <button class="btn-decline">✘ Decline</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

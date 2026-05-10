@@ -10,6 +10,11 @@
     <h1 class="fw-bold mb-1">Skill Requests</h1>
     <p class="text-muted mb-3">Manage incoming skill exchange requests.</p>
 
+    <div class="request-toggle mb-3" role="tablist" aria-label="Request filter">
+        <button type="button" class="request-toggle-btn is-active" data-target="incoming-section">Incoming Requests</button>
+        <button type="button" class="request-toggle-btn" data-target="sent-section">Sent Requests</button>
+    </div>
+
     <div class="info-banner mb-4">
         💬 Accepted users can chat with you on the Chat page.
     </div>
@@ -23,88 +28,113 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Incoming Requests -->
-    <div class="section-header">
-        <h4>Incoming Requests</h4>
-        {% if incoming|length > 0 %}
-            <span class="section-subtitle">{{ incoming|length }} request{{ 's' if incoming|length != 1 }}</span>
-        {% endif %}
-    </div>
+    <section id="incoming-section" class="request-panel">
+        <div class="section-header">
+            <h4>Incoming Requests</h4>
+            {% if incoming|length > 0 %}
+                <span class="section-subtitle">{{ incoming|length }} request{{ 's' if incoming|length != 1 }}</span>
+            {% endif %}
+        </div>
 
-    {% for req in incoming %}
-    <div class="request-card mb-3">
-        <div class="request-row">
-            <div class="request-details">
-                <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
-                <p class="request-meta">Requested by {{ req.from_user.name }}</p>
-                {% if req.status == 'accepted' %}
-                    <span class="badge-accepted">Accepted</span>
-                {% elif req.status == 'declined' %}
-                    <span class="badge-declined">Declined</span>
-                {% else %}
-                    <span class="badge-pending">Pending</span>
-                {% endif %}
+        {% for req in incoming %}
+        <div class="request-card mb-3">
+            <div class="request-row">
+                <div class="request-details">
+                    <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
+                    <p class="request-meta">Requested by {{ req.from_user.name }}</p>
+                    {% if req.status == 'accepted' %}
+                        <span class="badge-accepted">Accepted</span>
+                    {% elif req.status == 'declined' %}
+                        <span class="badge-declined">Declined</span>
+                    {% else %}
+                        <span class="badge-pending">Pending</span>
+                    {% endif %}
+                </div>
+
+                <div class="request-actions">
+                    {% if req.status == 'accepted' %}
+                        <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                    {% elif req.status == 'pending' %}
+                        <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
+                            <button type="submit" class="btn-accept">✔ Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('decline_request', request_id=req.id) }}">
+                            <button type="submit" class="btn-decline">✘ Decline</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
+            {% if req.message %}
+            <p class="text-muted small mt-2 mb-0"><em>"{{ req.message }}"</em></p>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="request-card empty-state mb-4">
+            <strong>No incoming requests yet.</strong>
+            <p>Any requests sent to you will appear here.</p>
+        </div>
+        {% endfor %}
+    </section>
 
-            <div class="request-actions">
-                {% if req.status == 'accepted' %}
-                    <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
-                {% elif req.status == 'pending' %}
-                    <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
-                        <button type="submit" class="btn-accept">✔ Accept</button>
-                    </form>
-                    <form method="POST" action="{{ url_for('decline_request', request_id=req.id) }}">
-                        <button type="submit" class="btn-decline">✘ Decline</button>
-                    </form>
-                {% endif %}
+    <section id="sent-section" class="request-panel request-panel-hidden">
+        <div class="section-header">
+            <h4>Sent Requests</h4>
+            {% if outgoing|length > 0 %}
+                <span class="section-subtitle">{{ outgoing|length }} request{{ 's' if outgoing|length != 1 }}</span>
+            {% endif %}
+        </div>
+
+        {% for req in outgoing %}
+        <div class="request-card mb-3">
+            <div class="request-row">
+                <div class="request-details">
+                    <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
+                    <p class="request-meta">Sent to {{ req.to_user.name }}</p>
+                    {% if req.status == 'accepted' %}
+                        <span class="badge-accepted">Accepted</span>
+                    {% elif req.status == 'declined' %}
+                        <span class="badge-declined">Declined</span>
+                    {% else %}
+                        <span class="badge-pending">Pending</span>
+                    {% endif %}
+                </div>
+                <div class="request-actions">
+                    {% if req.status == 'accepted' %}
+                        <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        {% if req.message %}
-        <p class="text-muted small mt-2 mb-0"><em>"{{ req.message }}"</em></p>
-        {% endif %}
-    </div>
-    {% else %}
-    <div class="request-card empty-state mb-4">
-        <strong>No incoming requests yet.</strong>
-        <p>Any requests sent to you will appear here.</p>
-    </div>
-    {% endfor %}
-
-    <!-- Outgoing Requests -->
-    <div class="section-header mt-4">
-        <h4>Sent Requests</h4>
-        {% if outgoing|length > 0 %}
-            <span class="section-subtitle">{{ outgoing|length }} request{{ 's' if outgoing|length != 1 }}</span>
-        {% endif %}
-    </div>
-
-    {% for req in outgoing %}
-    <div class="request-card mb-3">
-        <div class="request-row">
-            <div class="request-details">
-                <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
-                <p class="request-meta">Sent to {{ req.to_user.name }}</p>
-                {% if req.status == 'accepted' %}
-                    <span class="badge-accepted">Accepted</span>
-                {% elif req.status == 'declined' %}
-                    <span class="badge-declined">Declined</span>
-                {% else %}
-                    <span class="badge-pending">Pending</span>
-                {% endif %}
-            </div>
-            <div class="request-actions">
-                {% if req.status == 'accepted' %}
-                    <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
-                {% endif %}
-            </div>
+        {% else %}
+        <div class="request-card empty-state mb-4">
+            <strong>No sent requests yet.</strong>
+            <p>Requests you send will show up here.</p>
         </div>
-    </div>
-    {% else %}
-    <div class="request-card empty-state mb-4">
-        <strong>No sent requests yet.</strong>
-        <p>Requests you send will show up here.</p>
-    </div>
-    {% endfor %}
+        {% endfor %}
+    </section>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButtons = document.querySelectorAll('.request-toggle-btn');
+    const panels = document.querySelectorAll('.request-panel');
+
+    toggleButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const targetId = btn.getAttribute('data-target');
+
+            panels.forEach(function (panel) {
+                panel.classList.toggle('request-panel-hidden', panel.id !== targetId);
+            });
+
+            toggleButtons.forEach(function (otherBtn) {
+                otherBtn.classList.toggle('is-active', otherBtn === btn);
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

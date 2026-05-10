@@ -154,9 +154,18 @@ def create_app():
         db.create_all()
 
     return app
+   
+   @app.route('/requests')
+   @login_required
+   def requests_page():
+       incoming = Request.query.filter_by(
+           to_user_id=current_user.id
+           ).order_by(Request.created_at.desc()).all()
+       return render_template('requests.html', requests=incoming)
 
 
 app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
+    

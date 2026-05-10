@@ -56,7 +56,6 @@ def signup():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-
         login_user(user)
         return redirect(url_for('skills'))
 

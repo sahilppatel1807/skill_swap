@@ -14,55 +14,79 @@
         💬 Accepted users can chat with you on the Chat page.
     </div>
 
-    <div class="request-card mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="mb-1 fw-semibold">Python Programming</h5>
-                <p class="text-muted mb-2 small">Requested by Sara Ali</p>
-                <span class="badge-accepted">Accepted</span>
-            </div>
-            <button class="btn-can-chat">💬 Can Chat</button>
-        </div>
-    </div>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }} mb-3">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
+    <!-- Incoming Requests -->
+    <h4 class="fw-semibold mb-3">Incoming Requests</h4>
+
+    {% for req in incoming %}
     <div class="request-card mb-3">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h5 class="mb-1 fw-semibold">UI/UX Design</h5>
-                <p class="text-muted mb-2 small">Requested by Tom Wilson</p>
-                <span class="badge-pending">Pending</span>
+                <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
+                <p class="text-muted mb-2 small">Requested by {{ req.from_user.name }}</p>
+                {% if req.status == 'accepted' %}
+                    <span class="badge-accepted">Accepted</span>
+                {% elif req.status == 'declined' %}
+                    <span class="badge-declined">Declined</span>
+                {% else %}
+                    <span class="badge-pending">Pending</span>
+                {% endif %}
             </div>
+
             <div class="d-flex gap-2">
-                <button class="btn-accept">✔ Accept</button>
-                <button class="btn-decline">✘ Decline</button>
+                {% if req.status == 'accepted' %}
+                    <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                {% elif req.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
+                        <button type="submit" class="btn-accept">✔ Accept</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('decline_request', request_id=req.id) }}">
+                        <button type="submit" class="btn-decline">✘ Decline</button>
+                    </form>
+                {% endif %}
             </div>
         </div>
+        {% if req.message %}
+        <p class="text-muted small mt-2 mb-0"><em>"{{ req.message }}"</em></p>
+        {% endif %}
     </div>
+    {% else %}
+    <p class="text-muted mb-4">No incoming requests yet.</p>
+    {% endfor %}
 
+    <!-- Outgoing Requests -->
+    <h4 class="fw-semibold mb-3 mt-4">Sent Requests</h4>
+
+    {% for req in outgoing %}
     <div class="request-card mb-3">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h5 class="mb-1 fw-semibold">Guitar</h5>
-                <p class="text-muted mb-2 small">Requested by Jake Lee</p>
-                <span class="badge-accepted">Accepted</span>
+                <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
+                <p class="text-muted mb-2 small">Sent to {{ req.to_user.name }}</p>
+                {% if req.status == 'accepted' %}
+                    <span class="badge-accepted">Accepted</span>
+                {% elif req.status == 'declined' %}
+                    <span class="badge-declined">Declined</span>
+                {% else %}
+                    <span class="badge-pending">Pending</span>
+                {% endif %}
             </div>
-            <button class="btn-can-chat">💬 Can Chat</button>
+            {% if req.status == 'accepted' %}
+            <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+            {% endif %}
         </div>
     </div>
+    {% else %}
+    <p class="text-muted">You haven't sent any requests yet.</p>
+    {% endfor %}
 
-    <div class="request-card mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="mb-1 fw-semibold">Public Speaking</h5>
-                <p class="text-muted mb-2 small">Requested by Lena Park</p>
-                <span class="badge-pending">Pending</span>
-            </div>
-            <div class="d-flex gap-2">
-                <button class="btn-accept">✔ Accept</button>
-                <button class="btn-decline">✘ Decline</button>
-            </div>
-        </div>
-    </div>
 </div>
-
 {% endblock %}

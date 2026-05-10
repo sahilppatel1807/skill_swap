@@ -3,6 +3,27 @@ from __init__ import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
+def make_avatar_initials(name):
+    cleaned = ''.join(ch if ch.isalnum() or ch.isspace() else ' ' for ch in name or '')
+    parts = [part for part in cleaned.split() if part]
+
+    if len(parts) >= 2:
+        initials = parts[0][0] + parts[1][0]
+    elif parts:
+        initials = parts[0][:2]
+    else:
+        initials = 'US'
+
+    return initials.upper().ljust(2, 'U')[:2]
+
+
+def normalize_avatar_initials(value, fallback_name=''):
+    cleaned = ''.join(ch for ch in value or '' if ch.isalnum())
+    if cleaned:
+        return cleaned.upper()[:2].ljust(2, cleaned[0].upper())
+    return make_avatar_initials(fallback_name)
+
 # ── User ──────────────────────────────────────────────────────────
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -13,7 +34,12 @@ class User(UserMixin, db.Model):
     password   = db.Column(db.String(256), nullable=False)
     course     = db.Column(db.String(150))
     bio        = db.Column(db.Text)
+    avatar_initials = db.Column(db.String(2))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def avatar(self):
+        return normalize_avatar_initials(self.avatar_initials, self.name)
 
     def set_password(self, raw_password):
         self.password = generate_password_hash(raw_password)

@@ -18,14 +18,26 @@
 
   <!-- Profile Card — data from current_user -->
   <div class="profile-card">
-    <div class="profile-top">
-      <div class="profile-avatar">{{ current_user.avatar }}</div>
-      <div class="profile-info">
-        <h2 class="profile-name">{{ current_user.username }}</h2>
-        <p class="profile-course">{{ current_user.email }}</p>
+    <div class="profile-card-header">
+      <div class="profile-top">
+        <div class="profile-avatar">{{ current_user.avatar }}</div>
+        <div class="profile-info">
+          <h2 class="profile-name">{{ current_user.name }}</h2>
+          <p class="profile-course">{{ current_user.course or 'Course not added yet' }}</p>
+        </div>
       </div>
+      <button class="edit-profile-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+        Edit Profile
+      </button>
     </div>
-    <p class="profile-bio">{{ current_user.bio or 'No bio yet.' }}</p>
+    <div class="profile-detail">
+      <span class="profile-detail-label">Email</span>
+      <span class="profile-detail-value">{{ current_user.email }}</span>
+    </div>
+    <div class="profile-detail profile-detail-bio">
+      <span class="profile-detail-label">Bio</span>
+      <p class="profile-bio">{{ current_user.bio or 'No bio yet.' }}</p>
+    </div>
   </div>
 
   <!-- My Skills Section -->
@@ -94,6 +106,50 @@
     </div>
   </div>
 
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('edit_profile') }}">
+        <div class="modal-body pt-2">
+          <div class="profile-avatar-preview">
+            <div class="profile-avatar" id="profile-avatar-preview">{{ current_user.avatar }}</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input id="profile-name-input" type="text" class="form-control" name="name"
+                   value="{{ current_user.name }}" required maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Course / Major</label>
+            <input type="text" class="form-control" name="course"
+                   value="{{ current_user.course or '' }}" maxlength="150">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Avatar Letters</label>
+            <input id="profile-avatar-input" type="text" class="form-control avatar-input"
+                   name="avatar_initials" value="{{ current_user.avatar }}"
+                   maxlength="2" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Bio</label>
+            <textarea class="form-control" name="bio" rows="4"
+                      maxlength="500">{{ current_user.bio or '' }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <!-- Add Skill Modal -->

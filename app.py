@@ -1,48 +1,42 @@
-from flask import Flask, render_template, redirect, url_for, request, session, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user
-from flask_bcrypt import Bcrypt
-from flask_migrate import Migrate
+from flask import render_template, redirect, url_for, request, jsonify, flash
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from _init_ import create_app, db
+from models import User, Skill, Request, Message
 
-db            = SQLAlchemy()
-login_manager = LoginManager()
-bcrypt        = Bcrypt()
-migrate       = Migrate()
+app = create_app()
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SECRET_KEY']                     = 'skillswap-secret-key'
-    app.config['SQLALCHEMY_DATABASE_URI']        = 'sqlite:///skillswap.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    db.init_app(app)
-    login_manager.init_app(app)
-    bcrypt.init_app(app)
-    migrate.init_app(app, db)
 
-    # ── Dummy Data ───────────────────────────────────────────────
-    CURRENT_USER = 'Sahil'
+# ── Skills ────────────────────────────────────────────────────────
+@app.route('/skills')
+@login_required
+def skills():
+    all_skills = Skill.query.order_by(Skill.created_at.desc()).all()
+    return render_template('skills.html', skills=all_skills)
 
-    connections = [
-        { 'id': 1, 'name': 'Sara Ali', 'avatar': 'SA' },
-        { 'id': 2, 'name': 'Jake Lee', 'avatar': 'JL' },
-    ]
+@app.route('/skills/create', methods=['POST'])
+@login_required
+def create_skill():
+    data  = request.get_json()
+    skill = Skill(
+        title       = data.get('title'),
+        category    = data.get('category'),
+        description = data.get('description'),
+        user_id     = current_user.id
+    )
+    db.session.add(skill)
+    db.session.commit()
+    return jsonify({ 'status': 'ok', 'id': skill.id })
 
-    messages_store = {
-        1: [
-            { 'sender': 'Sara Ali', 'text': 'Hey! Thanks for accepting my request.' },
-            { 'sender': 'Sahil',    'text': 'No problem! When do you want to start learning Python?' },
-            { 'sender': 'Sara Ali', 'text': 'How about tomorrow at 3 PM?' },
-            { 'sender': 'Sahil',    'text': 'Sounds good! I\'ll send you some resources beforehand.' },
-            { 'sender': 'Sara Ali', 'text': 'Hey! Ready to start?' },
-        ],
-        2: [
-            { 'sender': 'Jake Lee', 'text': 'Thanks for accepting!' },
-            { 'sender': 'Sahil',    'text': 'Of course! What skill did you want to learn?' },
-        ]
-    }
-
-    users = []
+@app.route('/skills/delete/<int:skill_id>', methods=['POST'])
+@login_required
+def delete_skill(skill_id):
+    skill = Skill.query.get_or_404(skill_id)
+    if skill.user_id != current_user.id:
+        return jsonify({ 'status': 'error', 'message': 'Unauthorized' }), 403
+    db.session.delete(skill)
+    db.session.commit()
+    return jsonify({ 'status': 'ok' })
 
     # ── Register your skills blueprint ──────────────────────────
     from routes.skills import skills_bp

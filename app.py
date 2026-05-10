@@ -5,6 +5,7 @@ from models import db, User, Skill, Request, Message
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['WTF_CSRF_ENABLED'] = True
 
 # ── Extensions ────────────────────────────────────────────────────
 db.init_app(app)

@@ -61,7 +61,8 @@
     <p class="auth-footer">
       Already have an account?
       <a href="{{ url_for('login') }}" class="auth-link">Login</a>
-    </p>
+    
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"></p>
 
   </div>
 </div>

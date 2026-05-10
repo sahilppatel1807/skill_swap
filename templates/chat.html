@@ -19,7 +19,7 @@
       <div class="sidebar-label">CONNECTIONS</div>
 
       {% for conn in connections %}
-      <div class="connection-item {% if loop.first %}active{% endif %}"
+      <div class="connection-item {% if conn.id == active_user_id %}active{% endif %}"
            data-user-id="{{ conn.id }}"
            data-name="{{ conn.name }}"
            data-avatar="{{ conn.avatar }}">
@@ -37,24 +37,28 @@
     <div class="chat-main">
 
       <div class="chat-header">
-        <div class="avatar small" id="chat-avatar">
-          {{ connections[0].avatar if connections }}
-        </div>
-        <span class="chat-header-name" id="chat-header-name">
-          {{ connections[0].name if connections }}
-        </span>
+        {% set active_connection = connections|selectattr('id', 'equalto', active_user_id)|first %}
+        <div class="avatar small" id="chat-avatar">{{ active_connection.avatar if active_connection else '' }}</div>
+        <span class="chat-header-name" id="chat-header-name">{{ active_connection.name if active_connection else 'No accepted connections yet' }}</span>
       </div>
 
-      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-messages" id="chat-messages">
+        {% if not connections %}
+        <div class="chat-empty-state">
+          Accept a request first, then your conversations will appear here.
+        </div>
+        {% endif %}
+      </div>
 
-      <div class="chat-input-bar">
+      <div class="chat-input-bar {% if not connections %}disabled{% endif %}">
         <input
           type="text"
           id="message-input"
           class="chat-input"
           placeholder="Type a message..."
+          {% if not connections %}disabled{% endif %}
         />
-        <button class="send-btn" id="send-btn">
+        <button class="send-btn" id="send-btn" {% if not connections %}disabled{% endif %}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round">
@@ -70,5 +74,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+  window.initialChatUserId = {{ active_user_id|tojson }};
+</script>
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}

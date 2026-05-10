@@ -1,6 +1,6 @@
 /* ── Page Layout ───────────────────────────────────────────── */
 .chat-wrapper {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 24px auto;
   padding: 0 20px;
 }
@@ -27,9 +27,10 @@
   display: flex;
   background: #ffffff;
   border: 1px solid #e0e0e0;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   height: 620px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
 /* ── LEFT SIDEBAR ───────────────────────────────────────────── */
@@ -177,9 +178,24 @@
 }
 
 .message.sent .bubble {
-  background: #1a3a6b;
+  background: #1454a8;
   color: #ffffff;
   border-bottom-right-radius: 4px;
+}
+
+.chat-empty-state {
+  color: #7a8497;
+  margin: auto;
+  text-align: center;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.message-error {
+  align-self: flex-end;
+  color: #b91c1c;
+  font-size: 12px;
+  margin-top: -4px;
 }
 
 /* ── Input Bar ──────────────────────────────────────────────── */
@@ -206,7 +222,7 @@
 }
 
 .chat-input:focus {
-  border-color: #1a3a6b;
+  border-color: #1454a8;
   background: #ffffff;
 }
 
@@ -219,7 +235,7 @@
   height: 44px;
   min-width: 44px;
   border-radius: 50%;
-  background: #1a3a6b;
+  background: #1454a8;
   border: none;
   color: #ffffff;
   display: flex;
@@ -230,11 +246,21 @@
 }
 
 .send-btn:hover {
-  background: #15305a;
+  background: #0f4389;
 }
 
 .send-btn:active {
   transform: scale(0.95);
+}
+
+.send-btn:disabled,
+.chat-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.chat-input-bar.disabled {
+  background: #f8fafc;
 }
 
 /* ── Scrollbar ──────────────────────────────────────────────── */

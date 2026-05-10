@@ -53,7 +53,7 @@
 
                 <div class="request-actions">
                     {% if req.status == 'accepted' %}
-                        <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                        <a href="{{ url_for('chat', user_id=req.from_user.id) }}" class="btn-can-chat">💬 Can Chat</a>
                     {% elif req.status == 'pending' %}
                         <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
                             <button type="submit" class="btn-accept">✔ Accept</button>
@@ -100,7 +100,7 @@
                 </div>
                 <div class="request-actions">
                     {% if req.status == 'accepted' %}
-                        <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                        <a href="{{ url_for('chat', user_id=req.to_user.id) }}" class="btn-can-chat">💬 Can Chat</a>
                     {% endif %}
                 </div>
             </div>

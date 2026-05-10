@@ -24,26 +24,32 @@ $(document).ready(function () {
   // Request button click
   $(document).on('click', '.request-btn', function () {
     var card     = $(this).closest('.skill-card');
+    var skillId  = card.data('skill-id');
     var skillName = card.find('.skill-name').text();
-    var author    = card.find('.skill-author').text();
-
-    // ── REPLACE WITH AJAX WHEN BACKEND READY ────────────────
-    // $.ajax({
-    //   url: '/requests/send',
-    //   method: 'POST',
-    //   contentType: 'application/json',
-    //   data: JSON.stringify({ skill: skillName }),
-    //   success: function () {
-    //     showConfirmation(skillName);
-    //   }
-    // });
-    // 
-
-    // Temporary feedback
     var btn = $(this);
-    btn.text('Requested!');
-    btn.css('background', '#2d6a4f');
-    btn.prop('disabled', true);
+
+    $.ajax({
+      url: '/requests/send/' + skillId,
+      method: 'POST',
+      success: function () {
+        btn.text('✓ Requested!');
+        btn.css('background', '#2d6a4f');
+        btn.prop('disabled', true);
+      },
+      error: function (err) {
+        var errorMsg = 'Unable to request';
+        try {
+          var resp = JSON.parse(err.responseText);
+          errorMsg = resp.message || errorMsg;
+        } catch (e) {}
+        btn.text(errorMsg);
+        btn.css('background', '#dc2626');
+        setTimeout(function () {
+          btn.text('Request');
+          btn.css('background', '');
+        }, 3000);
+      }
+    });
   });
 
 });

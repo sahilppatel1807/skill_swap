@@ -8,7 +8,41 @@ skills_bp = flask.Blueprint('skills', __name__)
 
 # ── Skills Feed (Browse all skills) ─────────────────────────────
 @skills_bp.route('/skills')
+@skills_bp.route('/skills', methods=['GET', 'POST'])
 def skills():
+    if flask.request.method == 'POST':
+        if not current_user.is_authenticated:
+            flask.flash('You must be logged in to post a skill.', 'error')
+            return flask.redirect(flask.url_for('skills.skills'))
+
+        name        = flask.request.form.get('name', '').strip()
+        category    = flask.request.form.get('category', '').strip()
+        level       = flask.request.form.get('level', '').strip()
+        description = flask.request.form.get('description', '').strip()
+
+        errors = []
+        if not name:
+            errors.append('Skill name is required.')
+        if len(name) > 100:
+            errors.append('Name must be under 100 characters.')
+        if not category:
+            errors.append('Category is required.')
+        if len(description) > 500:
+            errors.append('Description must be under 500 characters.')
+
+        if errors:
+            for e in errors:
+                flask.flash(e, 'error')
+            # Re-render the feed with current data and errors
+            # (fall through to GET logic below)
+        else:
+            skill = Skill(user_id=current_user.id, name=name,
+                        category=category, level=level, description=description)
+            db.session.add(skill)
+            db.session.commit()
+            flask.flash('Skill added!', 'success')
+            return flask.redirect(flask.url_for('skills.skills'))
+
     query    = Skill.query
     category = flask.request.args.get('category', '').strip()
     search   = flask.request.args.get('search', '').strip()
@@ -78,7 +112,7 @@ def profile():
 # ── Profile: add skill ───────────────────────────────────────────
 @skills_bp.route('/profile/skills/add', methods=['POST'])
 @login_required
-def add_skill():
+def add_skill():  # (Optional) You may keep or remove the add_skill route below if you want to allow skill posting from the profile page as well.
     name        = flask.request.form.get('name', '').strip()
     category    = flask.request.form.get('category', '').strip()
     level       = flask.request.form.get('level', '').strip()

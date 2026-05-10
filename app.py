@@ -107,7 +107,12 @@ def requests_page():
     incoming = Request.query.filter_by(
         to_user_id=current_user.id
     ).order_by(Request.created_at.desc()).all()
-    return render_template('requests.html', requests=incoming)
+
+    outgoing = Request.query.filter_by(
+        from_user_id=current_user.id
+    ).order_by(Request.created_at.desc()).all()
+
+    return render_template('requests.html', incoming=incoming, outgoing=outgoing)
 
 @app.route('/requests/send/<int:skill_id>', methods=['POST'])
 @login_required

@@ -142,11 +142,16 @@
   background: #f8fafc;
   color: #0f172a;
   border: 1px solid #cbd5e1;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-can-chat:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+  text-decoration: none;
 }
 
 .empty-state {

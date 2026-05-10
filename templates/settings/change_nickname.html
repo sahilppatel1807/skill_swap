@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <h2>Change Nickname</h2>
+
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">New Nickname</label>
+      <input type="text" name="nickname" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      Update Nickname
+    </button>
+  </form>
+</div>
+{% endblock %}

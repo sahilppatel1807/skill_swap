@@ -31,6 +31,7 @@ class User(UserMixin, db.Model):
     id         = db.Column(db.Integer, primary_key=True)
     name       = db.Column(db.String(100), nullable=False)
     email      = db.Column(db.String(150), unique=True, nullable=False)
+    nickname   = db.Column(db.String(80), unique=True, nullable=True)
     password   = db.Column(db.String(256), nullable=False)
     course     = db.Column(db.String(150))
     bio        = db.Column(db.Text)

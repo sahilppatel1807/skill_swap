@@ -4,6 +4,7 @@ from app import db
 from models import Skill, Request
 
 skills_bp = flask.Blueprint('skills', __name__)
+DEFAULT_SKILL_CATEGORIES = ['Programming', 'Design', 'Music', 'Communication']
 
 
 # ── Skills Feed (Browse all skills) ─────────────────────────────
@@ -96,7 +97,7 @@ def request_skill(skill_id):
     )
     db.session.add(req)
     db.session.commit()
-    flask.flash(f'Request sent to {skill.owner.username}!', 'success')
+    flask.flash(f'Request sent to {skill.owner.name}!', 'success')
     return flask.redirect(flask.url_for('skills.skills'))
 
 
@@ -106,7 +107,18 @@ def request_skill(skill_id):
 def profile():
     my_skills = Skill.query.filter_by(user_id=current_user.id)\
                            .order_by(Skill.created_at.desc()).all()
-    return flask.render_template('profile.html', user=current_user, skills=my_skills)
+    existing_categories = [
+        category for (category,) in db.session.query(Skill.category).distinct().all()
+        if category
+    ]
+    categories = list(dict.fromkeys(DEFAULT_SKILL_CATEGORIES + existing_categories))
+
+    return flask.render_template(
+        'profile.html',
+        user=current_user,
+        skills=my_skills,
+        categories=categories
+    )
 
 
 # ── Profile: add skill ───────────────────────────────────────────

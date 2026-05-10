@@ -113,3 +113,25 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Category</label>
+            <input type="text" class="form-control" name="category"
+                   placeholder="e.g. Programming" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Level</label>
+            <input type="text" class="form-control" name="level"
+                   placeholder="e.g. Beginner, Intermediate, Expert">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description"
+                      placeholder="Describe your skill..." maxlength="500"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="submit" class="btn btn-primary">Add Skill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

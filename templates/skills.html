@@ -34,7 +34,7 @@
   {% if current_user.is_authenticated %}
   <div class="post-skill-form">
     <h3>Post a Skill</h3>
-    <form method="POST" action="{{ url_for('skills.skills') }}">
+    <form method="POST" action="{{ url_for('skills') }}">
       <input  type="text" name="name"       placeholder="Skill name"      required maxlength="100">
       <input  type="text" name="category"    placeholder="Category"         required>
       <textarea           name="description" placeholder="Description..."   maxlength="500"></textarea>

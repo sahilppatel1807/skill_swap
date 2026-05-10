@@ -38,7 +38,7 @@ class Skill(db.Model):
     user_id     = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     name        = db.Column(db.String(100), nullable=False)
     category    = db.Column(db.String(50),  nullable=False)
-    level       = db.Column(db.String(20))   # Beginner / Intermediate / Expert
+    level       = db.Column(db.String(20))
     description = db.Column(db.Text)
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
 

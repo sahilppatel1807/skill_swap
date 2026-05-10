@@ -31,12 +31,16 @@ $(document).ready(function () {
     if (e.which === 13) sendMessage();
   });
 
-  // Auto load first connection on page load
-  var first = $('.connection-item').first();
-  if (first.length) {
-    currentUserId   = first.data('user-id');
-    currentUserName = first.data('name');
-    loadMessages(currentUserId);
+  // Auto load the requested connection, or the first accepted connection.
+  var initial = $('.connection-item.active').first();
+  if (!initial.length && window.initialChatUserId) {
+    initial = $('.connection-item[data-user-id="' + window.initialChatUserId + '"]').first();
+  }
+  if (!initial.length) {
+    initial = $('.connection-item').first();
+  }
+  if (initial.length) {
+    initial.trigger('click');
   }
 });
 
@@ -57,6 +61,13 @@ function loadMessages(userId) {
 // ── Render messages into the chat window ──────────────────────────
 function renderMessages(messages) {
   $('#chat-messages').empty();
+
+  if (!messages.length) {
+    $('#chat-messages').html(
+      '<div class="chat-empty-state">No messages yet. Say hello and start planning your skill swap.</div>'
+    );
+    return;
+  }
 
   $.each(messages, function (i, msg) {
     var bubble = $(
@@ -97,7 +108,10 @@ function sendMessage() {
       message: text
     }),
     error: function () {
-      console.log('Failed to send message to server.');
+      $('#chat-messages').append(
+        '<div class="message-error">Could not send that message. Please try again.</div>'
+      );
+      scrollToBottom();
     }
   });
 }

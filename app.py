@@ -148,9 +148,61 @@ def delete_skill(skill_id):
         db.create_all()
 
     return app
+   
+   @app.route('/requests')
+   @login_required
+   def requests_page():
+       incoming = Request.query.filter_by(
+           to_user_id=current_user.id
+           ).order_by(Request.created_at.desc()).all()
+       return render_template('requests.html', requests=incoming)
+   
+   @app.route('/requests/send/<int:skill_id>', methods=['POST'])
+   @login_required
+   def send_request(skill_id):
+       skill = Skill.query.get_or_404(skill_id)
+       if skill.user_id == current_user.id:
+           return jsonify({ 'status': 'error',
+                           'message': 'Cannot request your own skill' }), 400
+           existing = Request.query.filter_by(
+               skill_id     = skill_id,
+               from_user_id = current_user.id
+               ).first()
+        if existing:
+            return jsonify({ 'status': 'error', 
+                            'message': 'Already requested' }), 400
+            req = Request(
+                skill_id     = skill_id,
+                from_user_id = current_user.id,
+                to_user_id   = skill.user_id
+                )
+            db.session.add(req)
+            db.session.commit()
+            return jsonify({ 'status': 'ok' })
+        
+    @app.route('/requests/accept/<int:request_id>', methods=['POST'])
+    @login_required
+    def accept_request(request_id):
+        req = Request.query.get_or_404(request_id)
+        if req.to_user_id != current_user.id:
+            return jsonify({ 'status': 'error' }), 403
+        req.status = 'accepted'
+        db.session.commit()
+        return jsonify({ 'status': 'ok' })
+    
+    @app.route('/requests/decline/<int:request_id>', methods=['POST'])
+    @login_required
+    def decline_request(request_id):
+        req = Request.query.get_or_404(request_id)
+        if req.to_user_id != current_user.id:
+            return jsonify({ 'status': 'error' }), 403
+        req.status = 'declined'
+        db.session.commit()
+        return jsonify({ 'status': 'ok' })
 
 
 app = create_app()
 
 if __name__ == '__main__':
     app.run(debug=True)
+    

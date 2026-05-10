@@ -185,6 +185,17 @@ def decline_request(request_id):
     return redirect(url_for('requests_page'))
 
 # ── Chat ──────────────────────────────────────────────────────────
+def has_accepted_connection(user_id):
+    return Request.query.filter(
+        Request.status == 'accepted',
+        (
+            ((Request.from_user_id == current_user.id) &
+             (Request.to_user_id == user_id)) |
+            ((Request.from_user_id == user_id) &
+             (Request.to_user_id == current_user.id))
+        )
+    ).first() is not None
+
 @app.route('/chat')
 @login_required
 def chat():
@@ -197,16 +208,30 @@ def chat():
     connections = []
     seen = set()
     for req in accepted:
-        other = req.sender if req.to_user_id == current_user.id else req.receiver
+        other = req.from_user if req.to_user_id == current_user.id else req.to_user
         if other.id not in seen:
             seen.add(other.id)
             connections.append(other)
 
-    return render_template('chat.html', connections=connections)
+    requested_user_id = request.args.get('user_id', type=int)
+    active_user_id = None
+    if requested_user_id in seen:
+        active_user_id = requested_user_id
+    elif connections:
+        active_user_id = connections[0].id
+
+    return render_template(
+        'chat.html',
+        connections=connections,
+        active_user_id=active_user_id
+    )
 
 @app.route('/chat/messages/<int:user_id>', methods=['GET'])
 @login_required
 def get_messages(user_id):
+    if not has_accepted_connection(user_id):
+        return jsonify({ 'status': 'error', 'message': 'Not an accepted connection' }), 403
+
     msgs = Message.query.filter(
         ((Message.sender_id   == current_user.id) &
          (Message.receiver_id == user_id)) |
@@ -231,9 +256,17 @@ def send_message():
     if not text or not user_id:
         return jsonify({ 'status': 'error' }), 400
 
+    try:
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        return jsonify({ 'status': 'error' }), 400
+
+    if not has_accepted_connection(user_id):
+        return jsonify({ 'status': 'error', 'message': 'Not an accepted connection' }), 403
+
     msg = Message(
         sender_id   = current_user.id,
-        receiver_id = int(user_id),
+        receiver_id = user_id,
         body        = text
     )
     db.session.add(msg)

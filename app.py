@@ -2,6 +2,7 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 from config import Config
 from models import db, User
+from models import db, User, Request, Message
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -35,8 +36,23 @@ def requests():
     return render_template('requests.html')
 
 @app.route('/chat')
+@login_required
 def chat():
-    return render_template('chat.html', connections=[])
+    accepted = Request.query.filter(
+        ((Request.from_user_id == current_user.id) |
+         (Request.to_user_id   == current_user.id)),
+        Request.status == 'accepted'
+    ).all()
+
+    connections = []
+    seen = set()
+    for req in accepted:
+        other = req.from_user if req.to_user_id == current_user.id else req.to_user
+        if other.id not in seen:
+            seen.add(other.id)
+            connections.append(other)
+
+    return render_template('chat.html', connections=connections)
 
 @app.route('/profile')
 def profile():

@@ -247,9 +247,17 @@ def profile():
     user_skills = Skill.query.filter_by(
         user_id=current_user.id
     ).order_by(Skill.created_at.desc()).all()
+    default_categories = ['Programming', 'Design', 'Music', 'Communication']
+    existing_categories = [
+        category for (category,) in db.session.query(Skill.category).distinct().all()
+        if category
+    ]
+    categories = list(dict.fromkeys(default_categories + existing_categories))
+
     return render_template('profile.html',
                            user=current_user,
-                           skills=user_skills)
+                           skills=user_skills,
+                           categories=categories)
 
 @app.route('/profile/edit', methods=['POST'])
 @login_required

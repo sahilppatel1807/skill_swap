@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block nav_links %}
-<a href="{{ url_for('auth.login') }}" class="index-nav-login">Login</a>
-<a href="{{ url_for('auth.signup') }}" class="index-nav-signup">Sign Up</a>
+<a href="{{ url_for('login') }}" class="index-nav-login">Login</a>
+<a href="{{ url_for('signup') }}" class="index-nav-signup">Sign Up</a>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +22,7 @@
     <div class="auth-error">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('auth.login') }}">
+    <form method="POST" action="{{ url_for('login') }}">
 
       <div class="form-group">
         <label class="form-label">Email</label>
@@ -42,7 +42,7 @@
 
     <p class="auth-footer">
       Don't have an account?
-      <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
+      <a href="{{ url_for('signup') }}" class="auth-link">Sign Up</a>
     </p>
 
   </div>

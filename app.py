@@ -1,8 +1,7 @@
-from flask import Flask, render_template
-from flask_login import LoginManager
+from flask import Flask, render_template, redirect, url_for, request, jsonify
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from config import Config
-from models import db, User
-from models import db, User, Request, Message
+from models import db, User, Skill, Request, Message
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -11,30 +10,164 @@ app.config.from_object(Config)
 db.init_app(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'auth.login'
+login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# ── Blueprints ────────────────────────────────────────────────────
-from auth import auth_bp
-from routes.skills import skills_bp
-
-app.register_blueprint(auth_bp)
-app.register_blueprint(skills_bp)
+# ── Create tables on startup ──────────────────────────────────────
+with app.app_context():
+    db.create_all()
 
 # ── Home ──────────────────────────────────────────────────────────
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('skills'))
     return render_template('index.html')
 
-# ── Placeholder routes (until teammates complete their modules) ───
-@app.route('/requests')
-def requests():
-    return render_template('requests.html')
+# ── Signup ────────────────────────────────────────────────────────
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('skills'))
 
+    if request.method == 'POST':
+        name     = request.form.get('name', '').strip()
+        email    = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        course   = request.form.get('course', '').strip()
+        bio      = request.form.get('bio', '').strip()
+
+        if not name or not email or not password:
+            return render_template('signup.html',
+                                   error='Name, email and password are required.')
+        if len(password) < 6:
+            return render_template('signup.html',
+                                   error='Password must be at least 6 characters.')
+        if User.query.filter_by(email=email).first():
+            return render_template('signup.html',
+                                   error='An account with that email already exists.')
+
+        user = User(name=name, email=email, course=course, bio=bio)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        login_user(user)
+        return redirect(url_for('skills'))
+
+    return render_template('signup.html')
+
+# ── Login ─────────────────────────────────────────────────────────
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('skills'))
+
+    if request.method == 'POST':
+        email    = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
+        user     = User.query.filter_by(email=email).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            return redirect(url_for('skills'))
+
+        return render_template('login.html', error='Invalid email or password.')
+
+    return render_template('login.html')
+
+# ── Logout ────────────────────────────────────────────────────────
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+# ── Skills ────────────────────────────────────────────────────────
+@app.route('/skills')
+@login_required
+def skills():
+    all_skills = Skill.query.order_by(Skill.created_at.desc()).all()
+    return render_template('skills.html', skills=all_skills)
+
+@app.route('/skills/create', methods=['POST'])
+@login_required
+def create_skill():
+    data  = request.get_json()
+    skill = Skill(
+        name        = data.get('name'),
+        category    = data.get('category'),
+        description = data.get('description'),
+        user_id     = current_user.id
+    )
+    db.session.add(skill)
+    db.session.commit()
+    return jsonify({'status': 'ok', 'id': skill.id})
+
+@app.route('/skills/delete/<int:skill_id>', methods=['POST'])
+@login_required
+def delete_skill(skill_id):
+    skill = Skill.query.get_or_404(skill_id)
+    if skill.user_id != current_user.id:
+        return jsonify({'status': 'error', 'message': 'Unauthorized'}), 403
+    db.session.delete(skill)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+# ── Requests ──────────────────────────────────────────────────────
+@app.route('/requests')
+@login_required
+def requests_page():
+    incoming = Request.query.filter_by(
+        to_user_id=current_user.id
+    ).order_by(Request.created_at.desc()).all()
+    return render_template('requests.html', requests=incoming)
+
+@app.route('/requests/send/<int:skill_id>', methods=['POST'])
+@login_required
+def send_request(skill_id):
+    skill = Skill.query.get_or_404(skill_id)
+    if skill.user_id == current_user.id:
+        return jsonify({'status': 'error', 'message': 'Cannot request your own skill'}), 400
+    existing = Request.query.filter_by(
+        skill_id=skill_id, from_user_id=current_user.id
+    ).first()
+    if existing:
+        return jsonify({'status': 'error', 'message': 'Already requested'}), 400
+    req = Request(
+        skill_id=skill_id,
+        from_user_id=current_user.id,
+        to_user_id=skill.user_id
+    )
+    db.session.add(req)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+@app.route('/requests/accept/<int:request_id>', methods=['POST'])
+@login_required
+def accept_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    if req.to_user_id != current_user.id:
+        return jsonify({'status': 'error'}), 403
+    req.status = 'accepted'
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+@app.route('/requests/decline/<int:request_id>', methods=['POST'])
+@login_required
+def decline_request(request_id):
+    req = Request.query.get_or_404(request_id)
+    if req.to_user_id != current_user.id:
+        return jsonify({'status': 'error'}), 403
+    req.status = 'declined'
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+# ── Chat ──────────────────────────────────────────────────────────
 @app.route('/chat')
 @login_required
 def chat():
@@ -54,13 +187,85 @@ def chat():
 
     return render_template('chat.html', connections=connections)
 
-@app.route('/profile')
-def profile():
-    return render_template('profile.html')
+@app.route('/chat/messages/<int:user_id>', methods=['GET'])
+@login_required
+def get_messages(user_id):
+    msgs = Message.query.filter(
+        ((Message.sender_id   == current_user.id) &
+         (Message.receiver_id == user_id)) |
+        ((Message.sender_id   == user_id) &
+         (Message.receiver_id == current_user.id))
+    ).order_by(Message.timestamp.asc()).all()
 
-# ── Create tables on first run ────────────────────────────────────
-with app.app_context():
-    db.create_all()
+    formatted = [{
+        'type': 'sent' if m.sender_id == current_user.id else 'received',
+        'text': m.body
+    } for m in msgs]
+
+    return jsonify({'messages': formatted})
+
+@app.route('/chat/send', methods=['POST'])
+@login_required
+def send_message():
+    data    = request.get_json()
+    user_id = data.get('user_id')
+    text    = data.get('message', '').strip()
+    if not text or not user_id:
+        return jsonify({'status': 'error'}), 400
+    msg = Message(
+        sender_id=current_user.id,
+        receiver_id=int(user_id),
+        body=text
+    )
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+# ── Profile ───────────────────────────────────────────────────────
+@app.route('/profile')
+@login_required
+def profile():
+    user_skills = Skill.query.filter_by(
+        user_id=current_user.id
+    ).order_by(Skill.created_at.desc()).all()
+    return render_template('profile.html', user=current_user, skills=user_skills)
+
+@app.route('/profile/skills/add', methods=['POST'])
+@login_required
+def add_skill():
+    data  = request.get_json()
+    skill = Skill(
+        name        = data.get('name'),
+        category    = data.get('category'),
+        description = data.get('desc'),
+        user_id     = current_user.id
+    )
+    db.session.add(skill)
+    db.session.commit()
+    return jsonify({'status': 'ok', 'id': skill.id})
+
+@app.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
+@login_required
+def edit_skill(skill_id):
+    skill = Skill.query.get_or_404(skill_id)
+    if skill.user_id != current_user.id:
+        return jsonify({'status': 'error'}), 403
+    data              = request.get_json()
+    skill.name        = data.get('name')
+    skill.category    = data.get('category')
+    skill.description = data.get('desc')
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
+@app.route('/profile/skills/delete/<int:skill_id>', methods=['POST'])
+@login_required
+def profile_delete_skill(skill_id):
+    skill = Skill.query.get_or_404(skill_id)
+    if skill.user_id != current_user.id:
+        return jsonify({'status': 'error'}), 403
+    db.session.delete(skill)
+    db.session.commit()
+    return jsonify({'status': 'ok'})
 
 if __name__ == '__main__':
     app.run(debug=True)

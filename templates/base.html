@@ -35,14 +35,14 @@
 
       {% if current_user.is_authenticated %}
         <!-- Logged in -->
-        <a href="{{ url_for('skills.skills') }}"
+        <a href="{{ url_for('skills') }}"
            class="nav-link px-3 py-2 rounded
-                  {% if request.endpoint == 'skills.skills' %}active-link{% endif %}">
+                  {% if request.endpoint == 'skills' %}active-link{% endif %}">
           Skills
         </a>
-        <a href="{{ url_for('requests') }}"
+        <a href="{{ url_for('requests_page') }}"
            class="nav-link px-3 py-2 rounded
-                  {% if request.endpoint == 'requests' %}active-link{% endif %}">
+                  {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
           Requests
         </a>
         <a href="{{ url_for('chat') }}"
@@ -50,12 +50,12 @@
                   {% if request.endpoint == 'chat' %}active-link{% endif %}">
           Chat
         </a>
-        <a href="{{ url_for('skills.profile') }}"
+        <a href="{{ url_for('profile') }}"
            class="nav-link px-3 py-2 rounded
-                  {% if request.endpoint == 'skills.profile' %}active-link{% endif %}">
+                  {% if request.endpoint == 'profile' %}active-link{% endif %}">
           Profile
         </a>
-        <a href="{{ url_for('auth.logout') }}"
+        <a href="{{ url_for('logout') }}"
            class="nav-link px-3 py-2 rounded d-flex align-items-center gap-1 text-danger logout-link">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2"
@@ -69,8 +69,8 @@
 
       {% else %}
         <!-- Not logged in -->
-        <a href="{{ url_for('auth.login') }}" class="index-nav-login">Login</a>
-        <a href="{{ url_for('auth.signup') }}" class="index-nav-signup">Sign Up</a>
+        <a href="{{ url_for('login') }}" class="index-nav-login">Login</a>
+        <a href="{{ url_for('signup') }}" class="index-nav-signup">Sign Up</a>
       {% endif %}
 
       {% endblock %}

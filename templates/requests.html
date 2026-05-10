@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container py-5 requests-page">
 
     <h1 class="fw-bold mb-1">Skill Requests</h1>
     <p class="text-muted mb-3">Manage incoming skill exchange requests.</p>
@@ -24,14 +24,19 @@
     {% endwith %}
 
     <!-- Incoming Requests -->
-    <h4 class="fw-semibold mb-3">Incoming Requests</h4>
+    <div class="section-header">
+        <h4>Incoming Requests</h4>
+        {% if incoming|length > 0 %}
+            <span class="section-subtitle">{{ incoming|length }} request{{ 's' if incoming|length != 1 }}</span>
+        {% endif %}
+    </div>
 
     {% for req in incoming %}
     <div class="request-card mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
+        <div class="request-row">
+            <div class="request-details">
                 <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
-                <p class="text-muted mb-2 small">Requested by {{ req.from_user.name }}</p>
+                <p class="request-meta">Requested by {{ req.from_user.name }}</p>
                 {% if req.status == 'accepted' %}
                     <span class="badge-accepted">Accepted</span>
                 {% elif req.status == 'declined' %}
@@ -41,7 +46,7 @@
                 {% endif %}
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="request-actions">
                 {% if req.status == 'accepted' %}
                     <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
                 {% elif req.status == 'pending' %}
@@ -59,18 +64,26 @@
         {% endif %}
     </div>
     {% else %}
-    <p class="text-muted mb-4">No incoming requests yet.</p>
+    <div class="request-card empty-state mb-4">
+        <strong>No incoming requests yet.</strong>
+        <p>Any requests sent to you will appear here.</p>
+    </div>
     {% endfor %}
 
     <!-- Outgoing Requests -->
-    <h4 class="fw-semibold mb-3 mt-4">Sent Requests</h4>
+    <div class="section-header mt-4">
+        <h4>Sent Requests</h4>
+        {% if outgoing|length > 0 %}
+            <span class="section-subtitle">{{ outgoing|length }} request{{ 's' if outgoing|length != 1 }}</span>
+        {% endif %}
+    </div>
 
     {% for req in outgoing %}
     <div class="request-card mb-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
+        <div class="request-row">
+            <div class="request-details">
                 <h5 class="mb-1 fw-semibold">{{ req.skill.name }}</h5>
-                <p class="text-muted mb-2 small">Sent to {{ req.to_user.name }}</p>
+                <p class="request-meta">Sent to {{ req.to_user.name }}</p>
                 {% if req.status == 'accepted' %}
                     <span class="badge-accepted">Accepted</span>
                 {% elif req.status == 'declined' %}
@@ -79,13 +92,18 @@
                     <span class="badge-pending">Pending</span>
                 {% endif %}
             </div>
-            {% if req.status == 'accepted' %}
-            <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
-            {% endif %}
+            <div class="request-actions">
+                {% if req.status == 'accepted' %}
+                    <a href="{{ url_for('chat') }}" class="btn-can-chat">💬 Can Chat</a>
+                {% endif %}
+            </div>
         </div>
     </div>
     {% else %}
-    <p class="text-muted">You haven't sent any requests yet.</p>
+    <div class="request-card empty-state mb-4">
+        <strong>No sent requests yet.</strong>
+        <p>Requests you send will show up here.</p>
+    </div>
     {% endfor %}
 
 </div>

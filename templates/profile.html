@@ -169,13 +169,32 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Category</label>
-            <input id="skill-category" type="text" class="form-control" name="category"
-                   placeholder="e.g. Programming" required>
+            <div class="category-select-row">
+              <select id="skill-category-select" class="form-select" aria-label="Select skill category">
+                <option value="" selected disabled>Select a category</option>
+                {% for category in categories|default([]) %}
+                  <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+              </select>
+              <button id="add-category-toggle" class="category-add-btn" type="button"
+                      title="Add new category" aria-label="Add new category">
+                +
+              </button>
+            </div>
+            <input id="skill-category" type="hidden" name="category" required>
+            <div id="custom-category-wrapper" class="custom-category-wrapper d-none">
+              <input id="custom-category" type="text" class="form-control"
+                     placeholder="New category name" maxlength="50">
+            </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Level</label>
-            <input id="skill-level" type="text" class="form-control" name="level"
-                   placeholder="e.g. Beginner, Intermediate, Expert">
+            <select id="skill-level" class="form-select" name="level">
+              <option value="" selected disabled>Select a level</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Expert">Expert</option>
+            </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Description</label>

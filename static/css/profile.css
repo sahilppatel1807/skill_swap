@@ -14,11 +14,18 @@
   margin-bottom: 32px;
 }
 
+.profile-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
 .profile-top {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-bottom: 16px;
 }
 
 .profile-avatar {
@@ -48,11 +55,66 @@
   margin: 0;
 }
 
+.edit-profile-btn {
+  background: #1a3a6b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.edit-profile-btn:hover {
+  background: #15305a;
+}
+
+.profile-detail {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.profile-detail + .profile-detail {
+  margin-top: 12px;
+}
+
+.profile-detail-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #777;
+  text-transform: uppercase;
+}
+
+.profile-detail-value {
+  font-size: 14px;
+  color: #444;
+  word-break: break-word;
+}
+
 .profile-bio {
   font-size: 14px;
   color: #555;
   line-height: 1.7;
   margin: 0;
+  word-break: break-word;
+}
+
+.profile-avatar-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.avatar-input {
+  text-transform: uppercase;
+  max-width: 120px;
 }
 
 /* ── Skills Section ─────────────────────────────────────────── */
@@ -199,4 +261,52 @@
 .form-select:focus {
   border-color: #1a3a6b;
   box-shadow: none;
+}
+
+.category-select-row {
+  display: grid;
+  grid-template-columns: 1fr 42px;
+  gap: 8px;
+}
+
+.category-add-btn {
+  width: 42px;
+  height: 38px;
+  border: 1px solid #1a3a6b;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1a3a6b;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.category-add-btn:hover,
+.category-add-btn.active {
+  background: #1a3a6b;
+  color: #ffffff;
+}
+
+.custom-category-wrapper {
+  margin-top: 8px;
+}
+
+@media (max-width: 520px) {
+  .profile-card-header {
+    flex-direction: column;
+  }
+
+  .edit-profile-btn {
+    width: 100%;
+  }
+
+  .profile-detail {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
 }

@@ -185,6 +185,26 @@ def create_app():
             db.session.add(req)
             db.session.commit()
             return jsonify({ 'status': 'ok' })
+        
+    @app.route('/requests/accept/<int:request_id>', methods=['POST'])
+    @login_required
+    def accept_request(request_id):
+        req = Request.query.get_or_404(request_id)
+        if req.to_user_id != current_user.id:
+            return jsonify({ 'status': 'error' }), 403
+        req.status = 'accepted'
+        db.session.commit()
+        return jsonify({ 'status': 'ok' })
+    
+    @app.route('/requests/decline/<int:request_id>', methods=['POST'])
+    @login_required
+    def decline_request(request_id):
+        req = Request.query.get_or_404(request_id)
+        if req.to_user_id != current_user.id:
+            return jsonify({ 'status': 'error' }), 403
+        req.status = 'declined'
+        db.session.commit()
+        return jsonify({ 'status': 'ok' })
 
 
 app = create_app()

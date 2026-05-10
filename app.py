@@ -36,8 +36,25 @@ def signup():
         name     = request.form.get('name')
         email    = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
         course   = request.form.get('course')
         bio      = request.form.get('bio')
+
+        if len(password) < 8:
+            return render_template('signup.html',
+                                   error='Password must be at least 8 characters long.')
+
+        if not any(char.isalpha() for char in password):
+            return render_template('signup.html',
+                                   error='Password must include at least one letter.')
+
+        if not any(char.isdigit() for char in password):
+            return render_template('signup.html',
+                                   error='Password must include at least one number.')
+
+        if password != confirm_password:
+            return render_template('signup.html',
+                                   error='Passwords do not match.')
 
         if User.query.filter_by(email=email).first():
             return render_template('signup.html',
@@ -50,13 +67,14 @@ def signup():
             bio=bio,
             avatar_initials=normalize_avatar_initials('', name)
         )
+
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
+
         return redirect(url_for('login'))
 
     return render_template('signup.html')
-
 # ── Login ─────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():

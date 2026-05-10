@@ -104,34 +104,38 @@
         <h5 class="modal-title fw-bold">Add New Skill</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="/profile/skills/add">
+      <form id="skill-form" method="POST" action="/profile/skills/add">
         <div class="modal-body pt-2">
           <div class="mb-3">
             <label class="form-label">Skill Name</label>
-            <input type="text" class="form-control" name="name"
+            <input id="skill-name" type="text" class="form-control" name="name"
                    placeholder="e.g. React.js" required maxlength="100">
           </div>
           <div class="mb-3">
             <label class="form-label">Category</label>
-            <input type="text" class="form-control" name="category"
+            <input id="skill-category" type="text" class="form-control" name="category"
                    placeholder="e.g. Programming" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Level</label>
-            <input type="text" class="form-control" name="level"
+            <input id="skill-level" type="text" class="form-control" name="level"
                    placeholder="e.g. Beginner, Intermediate, Expert">
           </div>
           <div class="mb-3">
             <label class="form-label">Description</label>
-            <textarea class="form-control" name="description"
+            <textarea id="skill-description" class="form-control" name="description"
                       placeholder="Describe your skill..." maxlength="500"></textarea>
           </div>
         </div>
         <div class="modal-footer border-0 pt-0">
-          <button type="submit" class="btn btn-primary">Add Skill</button>
+          <button id="skill-submit-btn" type="submit" class="btn btn-primary">Add Skill</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}

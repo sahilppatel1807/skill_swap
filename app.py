@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request, jsonify, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from sqlalchemy import inspect, text
 from __init__ import create_app, db
-from models import User, Skill, Request, Message
+from models import User, Skill, Request, Message, normalize_avatar_initials
 
 app = create_app()
 
@@ -17,6 +18,11 @@ def load_user(user_id):
 # ── Create tables on startup ──────────────────────────────────────
 with app.app_context():
     db.create_all()
+    inspector = inspect(db.engine)
+    user_columns = [column['name'] for column in inspector.get_columns('users')]
+    if 'avatar_initials' not in user_columns:
+        db.session.execute(text('ALTER TABLE users ADD COLUMN avatar_initials VARCHAR(2)'))
+        db.session.commit()
 
 # ── Home ──────────────────────────────────────────────────────────
 @app.route('/')
@@ -37,7 +43,13 @@ def signup():
             return render_template('signup.html',
                                    error='An account with that email already exists.')
 
-        user = User(name=name, email=email, course=course, bio=bio)
+        user = User(
+            name=name,
+            email=email,
+            course=course,
+            bio=bio,
+            avatar_initials=normalize_avatar_initials('', name)
+        )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
@@ -238,6 +250,21 @@ def profile():
     return render_template('profile.html',
                            user=current_user,
                            skills=user_skills)
+
+@app.route('/profile/edit', methods=['POST'])
+@login_required
+def edit_profile():
+    current_user.name = request.form.get('name', current_user.name).strip()
+    current_user.course = request.form.get('course', current_user.course or '').strip()
+    current_user.bio = request.form.get('bio', current_user.bio or '').strip()
+    current_user.avatar_initials = normalize_avatar_initials(
+        request.form.get('avatar_initials', ''),
+        current_user.name
+    )
+
+    db.session.commit()
+    flash('Profile updated!', 'success')
+    return redirect(url_for('profile'))
 
 @app.route('/profile/skills/add', methods=['POST'])
 @login_required

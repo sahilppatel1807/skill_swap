@@ -108,13 +108,13 @@ function saveSkill() {
     }
 
     // ── REPLACE WITH AJAX WHEN BACKEND READY ──────────────────
-    // $.ajax({
-    //   url: '/profile/skills/edit/' + editingId,
-    //   method: 'POST',
-    //   contentType: 'application/json',
-    //   data: JSON.stringify({ name, category, desc }),
-    //   success: function() { renderSkills(); }
-    // });
+    $.ajax({
+      url: '/profile/skills/edit/' + editingId,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({ name, category, desc }),
+      success: function() { renderSkills(); }
+    });
     // ──────────────────────────────────────────────────────────
 
     editingId = null;
@@ -170,11 +170,11 @@ function deleteSkill(id) {
   skills = skills.filter(function(s) { return s.id !== id; });
 
   // ── REPLACE WITH AJAX WHEN BACKEND READY ──────────────────
-  // $.ajax({
-  //   url: '/profile/skills/delete/' + id,
-  //   method: 'POST',
-  //   success: function() { renderSkills(); }
-  // });
+  $.ajax({
+    url: '/profile/skills/delete/' + id,
+    method: 'POST',
+    success: function() { renderSkills(); }
+  });
   // ──────────────────────────────────────────────────────────
 
   renderSkills();

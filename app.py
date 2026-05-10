@@ -225,15 +225,34 @@ def profile():
 @app.route('/profile/skills/add', methods=['POST'])
 @login_required
 def add_skill():
-    data  = request.get_json()
+    data = request.get_json(silent=True) or request.form
+
+    name        = data.get('name', '').strip()
+    category    = data.get('category', '').strip()
+    level       = data.get('level', '').strip()
+    description = data.get('description', data.get('desc', '')).strip()
+
+    if not name or not category:
+        message = 'Skill name and category are required.'
+        if request.is_json:
+            return jsonify({ 'status': 'error', 'message': message }), 400
+        flash(message, 'error')
+        return redirect(url_for('profile'))
+
     skill = Skill(
-        title       = data.get('name'),
-        category    = data.get('category'),
-        description = data.get('desc'),
+        name        = name,
+        category    = category,
+        level       = level,
+        description = description,
         user_id     = current_user.id
     )
     db.session.add(skill)
     db.session.commit()
+
+    if not request.is_json:
+        flash('Skill added!', 'success')
+        return redirect(url_for('profile'))
+
     return jsonify({ 'status': 'ok', 'id': skill.id })
 
 @app.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
@@ -242,11 +261,17 @@ def edit_skill(skill_id):
     skill = Skill.query.get_or_404(skill_id)
     if skill.user_id != current_user.id:
         return jsonify({ 'status': 'error' }), 403
-    data              = request.get_json()
-    skill.title       = data.get('name')
-    skill.category    = data.get('category')
-    skill.description = data.get('desc')
+    data              = request.get_json(silent=True) or request.form
+    skill.name        = data.get('name', skill.name).strip()
+    skill.category    = data.get('category', skill.category).strip()
+    skill.level       = data.get('level', skill.level or '').strip()
+    skill.description = data.get('description', data.get('desc', skill.description or '')).strip()
     db.session.commit()
+
+    if not request.is_json:
+        flash('Skill updated!', 'success')
+        return redirect(url_for('profile'))
+
     return jsonify({ 'status': 'ok' })
 
 @app.route('/profile/skills/delete/<int:skill_id>', methods=['POST'])
@@ -257,6 +282,11 @@ def profile_delete_skill(skill_id):
         return jsonify({ 'status': 'error' }), 403
     db.session.delete(skill)
     db.session.commit()
+
+    if not request.is_json:
+        flash('Skill deleted.', 'success')
+        return redirect(url_for('profile'))
+
     return jsonify({ 'status': 'ok' })
 
 if __name__ == '__main__':

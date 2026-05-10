@@ -1,8 +1,7 @@
-from flask import Flask, render_template, redirect, url_for, request, jsonify, session
+from flask import render_template, redirect, url_for, request, jsonify, session
+from __init__ import create_app, db
 
-app = Flask(__name__)
-app.secret_key = 'skillswap-secret-key'
-
+app = create_app()
 # ── Dummy Data (replace with database queries later) ────────────
 CURRENT_USER = 'Sahil'
 

@@ -145,20 +145,32 @@ def send_request(skill_id):
 def accept_request(request_id):
     req = Request.query.get_or_404(request_id)
     if req.to_user_id != current_user.id:
-        return jsonify({ 'status': 'error' }), 403
+        if request.is_json:
+            return jsonify({ 'status': 'error' }), 403
+        return redirect(url_for('requests_page'))
+
     req.status = 'accepted'
     db.session.commit()
-    return jsonify({ 'status': 'ok' })
+
+    if request.is_json:
+        return jsonify({ 'status': 'ok' })
+    return redirect(url_for('requests_page'))
 
 @app.route('/requests/decline/<int:request_id>', methods=['POST'])
 @login_required
 def decline_request(request_id):
     req = Request.query.get_or_404(request_id)
     if req.to_user_id != current_user.id:
-        return jsonify({ 'status': 'error' }), 403
+        if request.is_json:
+            return jsonify({ 'status': 'error' }), 403
+        return redirect(url_for('requests_page'))
+
     req.status = 'declined'
     db.session.commit()
-    return jsonify({ 'status': 'ok' })
+
+    if request.is_json:
+        return jsonify({ 'status': 'ok' })
+    return redirect(url_for('requests_page'))
 
 # ── Chat ──────────────────────────────────────────────────────────
 @app.route('/chat')

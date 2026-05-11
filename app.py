@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from sqlalchemy import inspect, text
 from __init__ import create_app, db
 from models import User, Skill, Request, Message, normalize_avatar_initials
+from sqlalchemy import text
 
 app = create_app()
 
@@ -23,7 +24,9 @@ with app.app_context():
     if 'avatar_initials' not in user_columns:
         db.session.execute(text('ALTER TABLE users ADD COLUMN avatar_initials VARCHAR(2)'))
         db.session.commit()
-
+    if 'nickname' not in user_columns:
+        db.session.execute(text("ALTER TABLE users ADD COLUMN nickname VARCHAR(80)"))
+        db.session.commit()
 # ── Home ──────────────────────────────────────────────────────────
 @app.route('/')
 def index():
@@ -33,12 +36,13 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        name     = request.form.get('name')
-        email    = request.form.get('email')
+        name = request.form.get('name')
+        nickname = request.form.get('nickname')
+        email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
-        course   = request.form.get('course')
-        bio      = request.form.get('bio')
+        course = request.form.get('course')
+        bio = request.form.get('bio')
 
         if len(password) < 8:
             return render_template('signup.html',
@@ -59,9 +63,12 @@ def signup():
         if User.query.filter_by(email=email).first():
             return render_template('signup.html',
                                    error='An account with that email already exists.')
+        if User.query.filter_by(nickname=nickname).first():
+            return render_template('signup.html', error='Nickname is already taken.')
 
         user = User(
             name=name,
+            nickname=nickname,
             email=email,
             course=course,
             bio=bio,
@@ -79,16 +86,22 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email    = request.form.get('email')
+        identifier = request.form.get('identifier')
         password = request.form.get('password')
-        user     = User.query.filter_by(email=email).first()
+
+        user = User.query.filter_by(email=identifier).first()
+
+        if not user:
+            user = User.query.filter_by(nickname=identifier).first()
 
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for('skills'))
 
-        return render_template('login.html',
-                               error='Invalid email or password.')
+        return render_template(
+            'login.html',
+            error='Invalid email/nickname or password.'
+        )
 
     return render_template('login.html')
 

@@ -45,10 +45,10 @@
         class="nav-link nav-link-requests px-3 py-2 rounded
                 {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
         Requests
-        {% if nav_pending_incoming_requests > 0 %}
+        {% if nav_requests_unseen_count > 0 %}
         <span class="nav-request-dot"
-              title="You have {{ nav_pending_incoming_requests }} pending incoming request{{ 's' if nav_pending_incoming_requests != 1 else '' }}"
-              aria-label="{{ nav_pending_incoming_requests }} pending incoming request{{ 's' if nav_pending_incoming_requests != 1 else '' }}"></span>
+              title="You have {{ nav_requests_unseen_count }} new request update{{ 's' if nav_requests_unseen_count != 1 else '' }}"
+              aria-label="{{ nav_requests_unseen_count }} new request update{{ 's' if nav_requests_unseen_count != 1 else '' }}"></span>
         {% endif %}
       </a>
       <a href="{{ url_for('chat') }}"

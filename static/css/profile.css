@@ -5,6 +5,79 @@
   padding: 0 20px;
 }
 
+/* ── Profile Notifications ─────────────────────────────────── */
+.profile-notifications {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  z-index: 1055;
+  width: min(300px, calc(100% - 48px));
+}
+
+.profile-notification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #c9e7d3;
+  border-radius: 8px;
+  background: #eefaf2;
+  color: #17613a;
+  box-shadow: 0 12px 28px rgba(26, 58, 107, 0.14);
+  font-size: 14px;
+  font-weight: 600;
+  animation: profileNotificationSlideIn 0.25s ease-out;
+}
+
+.profile-notification + .profile-notification {
+  margin-top: 10px;
+}
+
+.profile-notification-error,
+.profile-notification-danger {
+  border-color: #f1c6c3;
+  background: #fff1f0;
+  color: #9f2f28;
+}
+
+.profile-notification-close {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.profile-notification-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+@keyframes profileNotificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(24px, -12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@media (max-width: 576px) {
+  .profile-notifications {
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
 /* ── Profile Card ───────────────────────────────────────────── */
 .profile-card {
   background: #ffffff;

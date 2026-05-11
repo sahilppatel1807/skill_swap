@@ -9,10 +9,11 @@
   {% endif %}
 
   <form method="POST">
-    <div class="mb-3">
-      <label class="form-label">New Nickname</label>
-      <input type="text" name="nickname" class="form-control">
-    </div>
+    {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.nickname.label(class="form-label") }}
+    {{ form.nickname(class="form-control") }}
+  </div>
 
     <button type="submit" class="btn btn-primary">
       Update Nickname

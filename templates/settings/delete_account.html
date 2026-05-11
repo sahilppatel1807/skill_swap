@@ -16,17 +16,11 @@
   {% endif %}
 
   <form method="POST">
-
-    <div class="mb-3">
-      <label class="form-label">
-        Confirm Password
-      </label>
-
-      <input
-        type="password"
-        name="password"
-        class="form-control">
-    </div>
+    {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.password.label(class="form-label") }}
+    {{ form.password(class="form-control") }}
+  </div>
 
     <button type="submit" class="btn btn-danger">
       Delete My Account

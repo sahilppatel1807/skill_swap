@@ -89,6 +89,7 @@
                     action="/profile/skills/delete/{{ skill.id }}"
                     style="display:inline"
                     onsubmit="return confirm('Delete this skill?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="icon-btn delete-btn" title="Delete">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                        stroke="currentColor" stroke-width="2"
@@ -124,6 +125,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('edit_profile') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="modal-body pt-2">
           <div class="profile-avatar-preview">
             <div class="profile-avatar" id="profile-avatar-preview">{{ current_user.avatar }}</div>
@@ -168,6 +170,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form id="skill-form" method="POST" action="/profile/skills/add">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="modal-body pt-2">
           <div class="mb-3">
             <label class="form-label">Skill Name</label>

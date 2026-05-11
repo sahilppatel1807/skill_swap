@@ -5,21 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkillSwap</title>
 
-  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- Shared base styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
-  <!-- Per-page CSS -->
   {% block styles %}{% endblock %}
 </head>
 <body>
 
-  <!-- ===== NAVBAR ===== -->
   <nav class="navbar navbar-expand-lg bg-white border-bottom px-4 py-0" style="height: 60px;">
 
-     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark"
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-dark"
        href="{{ url_for('index') }}">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
            stroke="#1a3a6b" stroke-width="2"
@@ -28,120 +23,108 @@
         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
       </svg>
       SkillSwap
-    </a >
+    </a>
 
-  <div class="ms-auto d-flex align-items-center gap-1">
+    <div class="ms-auto d-flex align-items-center gap-1">
 
-    {% if current_user.is_authenticated %}
+      {% if current_user.is_authenticated %}
 
-      <!-- Logged in navbar -->
-      <a href="{{ url_for('skills') }}"
-        class="nav-link px-3 py-2 rounded
-                {% if request.endpoint == 'skills' %}active-link{% endif %}">
-        Skills
-      </a>
-
-      <a href="{{ url_for('requests_page') }}"
-        class="nav-link px-3 py-2 rounded
-                {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
-        Requests
-      </a>
-
-      <a href="{{ url_for('chat') }}"
-        class="nav-link px-3 py-2 rounded
-                {% if request.endpoint == 'chat' %}active-link{% endif %}">
-        Chat
-      </a>
-
-      <a href="{{ url_for('profile') }}"
-        class="nav-link px-3 py-2 rounded
-                {% if request.endpoint == 'profile' %}active-link{% endif %}">
-        Profile
-      </a>
-
-  <div class="dropdown">
-    <button
-      class="nav-link px-3 py-2 rounded dropdown-toggle border-0 bg-transparent settings-dropdown-btn"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false">
-      Settings
-    </button>
-
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li>
-        <a class="dropdown-item" href="{{ url_for('change_password') }}">
-          Change Password
+        <a href="{{ url_for('skills') }}"
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'skills' %}active-link{% endif %}">
+          Skills
         </a>
-      </li>
 
-      <li>
-        <a class="dropdown-item" href="{{ url_for('change_nickname') }}">
-          Change Nickname
+        <a href="{{ url_for('requests_page') }}"
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'requests_page' %}active-link{% endif %}">
+          Requests
         </a>
-      </li>
 
-      <li>
-        <a class="dropdown-item" href="{{ url_for('change_email') }}">
-          Change Email
+        <a href="{{ url_for('chat') }}"
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'chat' %}active-link{% endif %}">
+          Chat
         </a>
-      </li>
 
-      <li><hr class="dropdown-divider"></li>
-
-      <li>
-        <a class="dropdown-item" href="{{ url_for('logout') }}">
-          Login with another account
+        <a href="{{ url_for('profile') }}"
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'profile' %}active-link{% endif %}">
+          Profile
         </a>
-      </li>
 
-      <li>
-        <a class="dropdown-item danger" href="{{ url_for('delete_account') }}">
-          Delete Account
-        </a>
-      </li>
+        <div class="dropdown">
+          <button
+            class="nav-link px-3 py-2 rounded dropdown-toggle border-0 bg-transparent settings-dropdown-btn"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Settings
+          </button>
 
-      <li><hr class="dropdown-divider"></li>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="{{ url_for('change_password') }}">
+                Change Password
+              </a>
+            </li>
 
-      <li>
-        <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
-          Logout
-        </a>
-      </li>
-    </ul>
-  </div>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('change_nickname') }}">
+                Change Nickname
+              </a>
+            </li>
 
-    {% else %}
+            <li>
+              <a class="dropdown-item" href="{{ url_for('change_email') }}">
+                Change Email
+              </a>
+            </li>
 
-      <!-- Guest navbar -->
-      {% if request.endpoint not in ['login', 'signup'] %}
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+              <a class="dropdown-item" href="{{ url_for('logout') }}">
+                Login with another account
+              </a>
+            </li>
+
+            <li>
+              <a class="dropdown-item danger" href="{{ url_for('delete_account') }}">
+                Delete Account
+              </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+              <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
+                Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      {% else %}
+
         <a href="{{ url_for('login') }}"
-          class="nav-link px-3 py-2 rounded">
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'login' %}active-link{% endif %}">
           Login
         </a>
 
         <a href="{{ url_for('signup') }}"
-          class="nav-link px-3 py-2 rounded">
+           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'signup' %}active-link{% endif %}">
           Sign Up
         </a>
+
       {% endif %}
-    {% endif %}
 
-  </div>
-
+    </div>
   </nav>
-  <!-- ===== END NAVBAR ===== -->
 
-  <!-- Page content -->
   <main>
     {% block content %}{% endblock %}
   </main>
 
-  <!-- Bootstrap JS + jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Per-page JS -->
   {% block scripts %}{% endblock %}
 
 </body>

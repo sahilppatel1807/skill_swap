@@ -42,7 +42,7 @@ class User(UserMixin, db.Model):
         return normalize_avatar_initials(self.avatar_initials, self.name)
 
     def set_password(self, raw_password):
-        self.password = generate_password_hash(raw_password)
+        self.password = generate_password_hash(raw_password, method="pbkdf2:sha256")
 
     def check_password(self, raw_password):
         return check_password_hash(self.password, raw_password)

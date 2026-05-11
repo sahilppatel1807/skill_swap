@@ -38,3 +38,18 @@ body {
   background-color: #fdf0ef !important;
   color: #c0392b !important;
 }
+
+.signup-btn-nav {
+  background-color: #1a3a6b;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.signup-btn-nav:hover {
+  background-color: #274d88;
+  color: white;
+}

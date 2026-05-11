@@ -1,10 +1,5 @@
 {% extends "base.html" %}
 
-{% block nav_links %}
-<a href="{{ url_for('login') }}" class="index-nav-login">Login</a>
-<a href="{{ url_for('signup') }}" class="index-nav-signup">Sign Up</a>
-{% endblock %}
-
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 {% endblock %}

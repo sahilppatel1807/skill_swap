@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+  <h2 class="text-danger">Delete Account</h2>
+
+  <p class="text-danger">
+    This action cannot be undone.
+  </p>
+
+  {% if error %}
+  <div class="alert alert-danger">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <form method="POST">
+
+    <div class="mb-3">
+      <label class="form-label">
+        Confirm Password
+      </label>
+
+      <input
+        type="password"
+        name="password"
+        class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-danger">
+      Delete My Account
+    </button>
+
+  </form>
+
+</div>
+{% endblock %}

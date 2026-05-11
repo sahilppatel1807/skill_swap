@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <h2>Change Email</h2>
+
+  {% if error %}
+  <div class="alert alert-danger">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+
+    <div class="mb-3">
+      <label class="form-label">Current Email</label>
+      <input
+        type="email"
+        class="form-control"
+        value="{{ current_user.email }}"
+        readonly>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">New Email</label>
+      <input type="email" name="email" class="form-control">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Password Confirmation</label>
+      <input type="password" name="password" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      Update Email
+    </button>
+  </form>
+</div>
+{% endblock %}

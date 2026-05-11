@@ -112,6 +112,129 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+@app.route('/settings/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+
+    error = None
+    success = None
+
+    if request.method == 'POST':
+
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+
+        # check old password
+        if not current_user.check_password(current_password):
+            error = 'Current password is incorrect.'
+
+        # simple password validation
+        elif len(new_password) < 6:
+            error = 'Password must be at least 6 characters.'
+
+        else:
+            current_user.set_password(new_password)
+
+            db.session.commit()
+
+            logout_user()
+
+            return redirect(url_for('login'))
+
+    return render_template(
+        'settings/change_password.html',
+        error=error,
+        success=success
+    )
+
+@app.route('/settings/change-nickname', methods=['GET', 'POST'])
+@login_required
+def change_nickname():
+
+    error = None
+
+    if request.method == 'POST':
+
+        new_nickname = request.form.get('nickname')
+
+        if not new_nickname:
+            error = 'Nickname is required.'
+
+        elif User.query.filter_by(nickname=new_nickname).first():
+            error = 'This nickname is already taken.'
+
+        else:
+            current_user.nickname = new_nickname
+            db.session.commit()
+
+            return redirect(url_for('profile'))
+
+    return render_template(
+        'settings/change_nickname.html',
+        error=error
+    )
+
+@app.route('/settings/change-email', methods=['GET', 'POST'])
+@login_required
+def change_email():
+
+    error = None
+
+    if request.method == 'POST':
+
+        new_email = request.form.get('email')
+        password = request.form.get('password')
+
+        # verify password
+        if not current_user.check_password(password):
+            error = 'Incorrect password.'
+
+        # check email already exists
+        elif User.query.filter_by(email=new_email).first():
+            error = 'Email already exists.'
+
+        else:
+            current_user.email = new_email
+
+            db.session.commit()
+
+            return redirect(url_for('profile'))
+
+    return render_template(
+        'settings/change_email.html',
+        error=error
+    )
+
+@app.route('/settings/delete-account', methods=['GET', 'POST'])
+@login_required
+def delete_account():
+
+    error = None
+
+    if request.method == 'POST':
+
+        password = request.form.get('password')
+
+        if not current_user.check_password(password):
+            error = 'Incorrect password.'
+
+        else:
+            user_id = current_user.id
+
+            logout_user()
+
+            user = User.query.get(user_id)
+
+            db.session.delete(user)
+            db.session.commit()
+
+            return redirect(url_for('index'))
+
+    return render_template(
+        'settings/delete_account.html',
+        error=error
+    )
+
 # ── Skills ────────────────────────────────────────────────────────
 @app.route('/skills')
 @login_required

@@ -133,6 +133,21 @@ document.addEventListener('DOMContentLoaded', function () {
             toggleButtons.forEach(function (otherBtn) {
                 otherBtn.classList.toggle('is-active', otherBtn === btn);
             });
+
+            // If sender opens Sent Requests, mark responded requests as seen
+            // so the navbar dot disappears after viewing responses.
+            if (targetId === 'sent-section') {
+                fetch("{{ url_for('mark_sent_requests_seen') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ seen: true })
+                }).then(function () {
+                    const dot = document.querySelector('.nav-request-dot');
+                    if (dot) dot.remove();
+                }).catch(function () {
+                    // Non-blocking: worst case dot clears on next navigation.
+                });
+            }
         });
     });
 });

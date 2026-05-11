@@ -90,6 +90,12 @@ class Request(db.Model):
     status       = db.Column(db.String(20), default='pending')
     created_at   = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Navbar notification state:
+    # - to_user_seen: recipient has already seen/handled this request.
+    # - from_user_seen: sender has already seen the recipient's response.
+    to_user_seen   = db.Column(db.Boolean, default=False, nullable=False)
+    from_user_seen = db.Column(db.Boolean, default=True, nullable=False)
+
     from_user = db.relationship('User', foreign_keys=[from_user_id],
                                 backref='sent_requests')
     to_user   = db.relationship('User', foreign_keys=[to_user_id],

@@ -3,7 +3,6 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from sqlalchemy import inspect, text
 from __init__ import create_app, db
 from models import User, Skill, Request, Message, normalize_avatar_initials
-from sqlalchemy import text
 
 app = create_app()
 
@@ -15,6 +14,19 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+@app.context_processor
+def inject_nav_pending_requests():
+    """Pending incoming skill requests — drives the Requests nav indicator."""
+    if current_user.is_authenticated:
+        n = Request.query.filter_by(
+            to_user_id=current_user.id,
+            status='pending',
+        ).count()
+        return {'nav_pending_incoming_requests': n}
+    return {'nav_pending_incoming_requests': 0}
+
 
 # ── Create tables on startup ──────────────────────────────────────
 with app.app_context():

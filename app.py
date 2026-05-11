@@ -15,6 +15,31 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+@app.context_processor
+def inject_nav_pending_requests():
+    """Compute navbar Requests red-dot count (unseen request activity)."""
+    if current_user.is_authenticated:
+        # Recipient side: show dot for pending incoming requests not yet handled.
+        incoming_pending_unseen = Request.query.filter(
+            Request.to_user_id == current_user.id,
+            Request.status == 'pending',
+            Request.to_user_seen.is_(False),
+        ).count()
+
+        # Sender side: show dot when the recipient has responded (accepted/declined)
+        # and the sender hasn't seen that response yet.
+        outgoing_response_unseen = Request.query.filter(
+            Request.from_user_id == current_user.id,
+            Request.status != 'pending',
+            Request.from_user_seen.is_(False),
+        ).count()
+
+        return {'nav_requests_unseen_count': incoming_pending_unseen + outgoing_response_unseen}
+
+    return {'nav_requests_unseen_count': 0}
+
+
 # ── Create tables on startup ──────────────────────────────────────
 with app.app_context():
     db.create_all()
@@ -25,6 +50,15 @@ with app.app_context():
         db.session.commit()
     if 'nickname' not in user_columns:
         db.session.execute(text("ALTER TABLE users ADD COLUMN nickname VARCHAR(80)"))
+        db.session.commit()
+
+    # Ensure notification columns exist in the `requests` table (no migrations here).
+    request_columns = [column['name'] for column in inspector.get_columns('requests')]
+    if 'to_user_seen' not in request_columns:
+        db.session.execute(text('ALTER TABLE requests ADD COLUMN to_user_seen INTEGER NOT NULL DEFAULT 0'))
+        db.session.commit()
+    if 'from_user_seen' not in request_columns:
+        db.session.execute(text('ALTER TABLE requests ADD COLUMN from_user_seen INTEGER NOT NULL DEFAULT 1'))
         db.session.commit()
 # ── Home ──────────────────────────────────────────────────────────
 @app.route('/')
@@ -261,6 +295,22 @@ def requests_page():
 
     return render_template('requests.html', incoming=incoming, outgoing=outgoing)
 
+
+@app.route('/requests/mark-sent-seen', methods=['POST'])
+@login_required
+def mark_sent_requests_seen():
+    # Sender clears the "new response" dot only after viewing Sent Requests.
+    Request.query.filter(
+        Request.from_user_id == current_user.id,
+        Request.status != 'pending',
+        Request.from_user_seen.is_(False),
+    ).update(
+        {Request.from_user_seen: True},
+        synchronize_session=False,
+    )
+    db.session.commit()
+    return jsonify({'status': 'ok'})
+
 @app.route('/requests/send/<int:skill_id>', methods=['POST'])
 @login_required
 def send_request(skill_id):
@@ -281,7 +331,10 @@ def send_request(skill_id):
     req = Request(
         skill_id     = skill_id,
         from_user_id = current_user.id,
-        to_user_id   = skill.user_id
+        to_user_id   = skill.user_id,
+        # Recipient hasn't handled it yet; sender hasn't seen a response yet.
+        to_user_seen   = False,
+        from_user_seen = True,
     )
     db.session.add(req)
     db.session.commit()
@@ -297,6 +350,9 @@ def accept_request(request_id):
         return redirect(url_for('requests_page'))
 
     req.status = 'accepted'
+    # Recipient has handled it; sender should get a "new response" dot.
+    req.to_user_seen = True
+    req.from_user_seen = False
     db.session.commit()
 
     if request.is_json:
@@ -313,6 +369,9 @@ def decline_request(request_id):
         return redirect(url_for('requests_page'))
 
     req.status = 'declined'
+    # Recipient has handled it; sender should get a "new response" dot.
+    req.to_user_seen = True
+    req.from_user_seen = False
     db.session.commit()
 
     if request.is_json:

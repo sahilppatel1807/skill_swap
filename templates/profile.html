@@ -7,12 +7,19 @@
 {% block content %}
 <div class="profile-wrapper">
 
-  <!-- Flash Messages -->
+  <!-- Profile Notifications -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
+      <div class="profile-notifications" aria-live="polite">
       {% for category, message in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
+        <div class="profile-notification profile-notification-{{ category }}" role="status">
+          <span class="profile-notification-message">{{ message }}</span>
+          <button type="button" class="profile-notification-close" aria-label="Dismiss notification">
+            &times;
+          </button>
+        </div>
       {% endfor %}
+      </div>
     {% endif %}
   {% endwith %}
 

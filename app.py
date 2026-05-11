@@ -3,8 +3,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from sqlalchemy import inspect, text
 from __init__ import create_app, db
 from models import User, Skill, Request, Message, normalize_avatar_initials
-from sqlalchemy import text
-
+from forms import LoginForm, SignupForm, ChangePasswordForm, ChangeNicknameForm, ChangeEmailForm, DeleteAccountForm
 app = create_app()
 
 # ── Flask-Login setup ─────────────────────────────────────────────
@@ -35,36 +34,29 @@ def index():
 # ── Signup ────────────────────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        nickname = request.form.get('nickname')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        course = request.form.get('course')
-        bio = request.form.get('bio')
+    form = SignupForm()
 
-        if len(password) < 8:
-            return render_template('signup.html',
-                                   error='Password must be at least 8 characters long.')
-
-        if not any(char.isalpha() for char in password):
-            return render_template('signup.html',
-                                   error='Password must include at least one letter.')
-
-        if not any(char.isdigit() for char in password):
-            return render_template('signup.html',
-                                   error='Password must include at least one number.')
-
-        if password != confirm_password:
-            return render_template('signup.html',
-                                   error='Passwords do not match.')
+    if form.validate_on_submit():
+        name = form.name.data
+        nickname = form.nickname.data
+        email = form.email.data
+        password = form.password.data
+        course = form.course.data
+        bio = form.bio.data
 
         if User.query.filter_by(email=email).first():
-            return render_template('signup.html',
-                                   error='An account with that email already exists.')
+            return render_template(
+                'signup.html',
+                form=form,
+                error='An account with that email already exists.'
+            )
+
         if User.query.filter_by(nickname=nickname).first():
-            return render_template('signup.html', error='Nickname is already taken.')
+            return render_template(
+                'signup.html',
+                form=form,
+                error='Nickname is already taken.'
+            )
 
         user = User(
             name=name,
@@ -81,13 +73,15 @@ def signup():
 
         return redirect(url_for('login'))
 
-    return render_template('signup.html')
+    return render_template('signup.html', form=form)
 # ── Login ─────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        identifier = request.form.get('identifier')
-        password = request.form.get('password')
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        identifier = form.identifier.data
+        password = form.password.data
 
         user = User.query.filter_by(email=identifier).first()
 
@@ -100,10 +94,11 @@ def login():
 
         return render_template(
             'login.html',
+            form=form,
             error='Invalid email/nickname or password.'
         )
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 # ── Logout ────────────────────────────────────────────────────────
 @app.route('/logout')
@@ -115,116 +110,101 @@ def logout():
 @app.route('/settings/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
-
+    form = ChangePasswordForm()
     error = None
-    success = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        new_password = form.new_password.data
 
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-
-        # check old password
         if not current_user.check_password(current_password):
             error = 'Current password is incorrect.'
-
-        # simple password validation
-        elif len(new_password) < 6:
-            error = 'Password must be at least 6 characters.'
-
         else:
             current_user.set_password(new_password)
-
             db.session.commit()
-
             logout_user()
-
             return redirect(url_for('login'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_password.html',
-        error=error,
-        success=success
+        form=form,
+        error=error
     )
 
 @app.route('/settings/change-nickname', methods=['GET', 'POST'])
 @login_required
 def change_nickname():
-
+    form = ChangeNicknameForm()
     error = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        new_nickname = form.nickname.data
 
-        new_nickname = request.form.get('nickname')
+        existing_user = User.query.filter_by(nickname=new_nickname).first()
 
-        if not new_nickname:
-            error = 'Nickname is required.'
-
-        elif User.query.filter_by(nickname=new_nickname).first():
+        if existing_user and existing_user.id != current_user.id:
             error = 'This nickname is already taken.'
-
         else:
             current_user.nickname = new_nickname
             db.session.commit()
-
             return redirect(url_for('profile'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_nickname.html',
+        form=form,
         error=error
     )
 
 @app.route('/settings/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email():
-
+    form = ChangeEmailForm()
     error = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        new_email = form.email.data
+        password = form.password.data
 
-        new_email = request.form.get('email')
-        password = request.form.get('password')
-
-        # verify password
         if not current_user.check_password(password):
             error = 'Incorrect password.'
-
-        # check email already exists
         elif User.query.filter_by(email=new_email).first():
             error = 'Email already exists.'
-
         else:
             current_user.email = new_email
-
             db.session.commit()
-
             return redirect(url_for('profile'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_email.html',
+        form=form,
         error=error
     )
 
 @app.route('/settings/delete-account', methods=['GET', 'POST'])
 @login_required
 def delete_account():
-
+    form = DeleteAccountForm()
     error = None
 
-    if request.method == 'POST':
-
-        password = request.form.get('password')
+    if form.validate_on_submit():
+        password = form.password.data
 
         if not current_user.check_password(password):
             error = 'Incorrect password.'
-
         else:
             user_id = current_user.id
-
             logout_user()
 
             user = User.query.get(user_id)
-
             db.session.delete(user)
             db.session.commit()
 
@@ -232,6 +212,7 @@ def delete_account():
 
     return render_template(
         'settings/delete_account.html',
+        form=form,
         error=error
     )
 

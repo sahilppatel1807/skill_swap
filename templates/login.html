@@ -18,6 +18,7 @@
     {% endif %}
 
     <form method="POST" action="{{ url_for('login') }}">
+      {{ form.hidden_tag() }}
 
       <div class="form-group">
         <label class="form-label">Email or Nickname</label>

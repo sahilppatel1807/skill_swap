@@ -3,7 +3,7 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/skills.css') }}">
 {% endblock %}
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 {% block content %}
 <div class="skills-wrapper">
 
@@ -14,22 +14,22 @@
     <p class="skills-subtitle">Find skills you want to learn from peers.</p>
   </div>
 
-  <!-- Filter Pills -->
   <div class="filter-row">
-    <a href="#" class="filter-btn active" data-filter="all">All</a>
+    <a href="{{ url_for('skills') }}" class="filter-btn {% if not current_category %}active{% endif %}">All</a>
     {% for cat in categories or [] %}
-    <a href="#" class="filter-btn" data-filter="{{ cat }}">{{ cat }}</a>
+    <a href="{{ url_for('skills', category=cat) }}"
+      class="filter-btn {% if current_category == cat %}active{% endif %}">{{ cat }}</a>
     {% endfor %}
   </div>
 
 
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="flash flash-{{ category }}">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
   {% endwith %}
 
   <!-- Skills Grid -->
@@ -41,7 +41,14 @@
         <h3 class="skill-name">{{ skill.name }}</h3>
         <p class="skill-desc">{{ skill.description }}</p>
         <p class="skill-author">by {{ skill.owner.name }}</p>
-          <!-- Request button/form removed as per user request -->
+
+        {% if skill.user_id != current_user.id %}
+        <button type="button" class="request-btn" data-skill-id="{{ skill.id }}">
+          Request
+        </button>
+        {% else %}
+        <button class="btn btn-secondary" disabled>Your Skill</button>
+        {% endif %}
       </div>
     </div>
     {% else %}

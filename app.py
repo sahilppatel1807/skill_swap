@@ -280,7 +280,7 @@ def skills():
 def create_skill():
     data  = request.get_json()
     skill = Skill(
-        title       = data.get('title'),
+        name        = data.get('name'),
         category    = data.get('category'),
         description = data.get('description'),
         user_id     = current_user.id

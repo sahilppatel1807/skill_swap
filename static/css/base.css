@@ -101,3 +101,274 @@ body {
   background-color: #f8d7da;
   color: #dc3545;
 }
+
+/* ── Drawer overlay ─────────────────────────────────────────── */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1049;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.drawer-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Drawer panel ────────────────────────────────────────────── */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: 290px;
+  background: #ffffff;
+  z-index: 1050;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* ── User header ─────────────────────────────────────────────── */
+.drawer-user-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid #f0f2f5;
+}
+.drawer-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.drawer-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #dce6f5;
+  color: #1a3a6b;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.drawer-user-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+.drawer-user-email {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.3;
+}
+.drawer-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.drawer-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ── Sections ────────────────────────────────────────────────── */
+.drawer-section {
+  padding: 10px 10px 4px;
+  border-bottom: 1px solid #f0f2f5;
+}
+.drawer-section:last-child {
+  border-bottom: none;
+}
+.drawer-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.07em;
+  padding: 4px 8px 8px;
+}
+
+/* ── Links ───────────────────────────────────────────────────── */
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+}
+.drawer-link:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  text-decoration: none;
+}
+.drawer-link-active {
+  background: rgba(13, 75, 150, 0.08);
+  color: #0d4b96;
+  font-weight: 600;
+}
+.drawer-link-active svg {
+  color: #0d4b96;
+}
+.drawer-link-danger {
+  color: #df3a3a;
+}
+.drawer-link-danger:hover {
+  background: rgba(223, 58, 58, 0.08);
+  color: #df3a3a;
+}
+
+/* ── Badge ───────────────────────────────────────────────────── */
+.drawer-badge {
+  margin-left: auto;
+  background: #0d4b96;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+/* ── Settings chevron ────────────────────────────────────────── */
+.drawer-settings-toggle {
+  text-align: left;
+}
+.drawer-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  color: #94a3b8;
+}
+.drawer-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+/* ── Settings sub-items ──────────────────────────────────────── */
+.drawer-subsection {
+  display: none;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 4px 0;
+  margin: 2px 0 6px;
+}
+.drawer-subsection.open {
+  display: block;
+}
+.drawer-sublink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #475569;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.drawer-sublink:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  text-decoration: none;
+}
+
+/* ── Account section spacing ─────────────────────────────────── */
+.drawer-section-account {
+  margin-top: auto;
+}
+
+/* Mobile navbar (below 768px) */
+@media (max-width: 767px) {
+  .navbar-toggler:focus {
+    box-shadow: none;
+  }
+
+  /* Full-width panel drops from navbar */
+  #navbarNav {
+    width: 100%;
+    border-top: 1px solid #e4e7ed;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 0 14px;
+  }
+
+  .navbar-collapse .ms-auto {
+    flex-direction: column;
+    align-items: center !important;
+    justify-content: center;
+    width: 100%;
+    gap: 4px !important;
+    padding: 0;
+  }
+
+  .navbar-collapse .nav-link {
+    width: 220px;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+  }
+
+  /* Settings dropdown expands inline, centered */
+  .navbar-collapse .dropdown {
+    width: 220px;
+    text-align: center;
+  }
+
+  .navbar-collapse .settings-dropdown-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .navbar-collapse .dropdown-menu {
+    position: static !important;
+    float: none;
+    box-shadow: none;
+    border: none;
+    border-top: 1px solid #e4e7ed;
+    border-radius: 0;
+    padding: 6px 0;
+    margin: 4px 0 0;
+    background: transparent;
+    min-width: unset;
+    width: 100%;
+  }
+
+  .navbar-collapse .dropdown-menu .dropdown-item {
+    font-size: 13px;
+    padding: 8px 16px;
+    text-align: center;
+  }
+
+  .navbar-collapse .dropdown-divider {
+    margin: 4px 16px;
+  }
+}

@@ -9,6 +9,7 @@
   {% endif %}
 
   <form method="POST">
+    {{ form.hidden_tag() }}
 
     <div class="mb-3">
       <label class="form-label">Current Email</label>
@@ -20,13 +21,13 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label">New Email</label>
-      <input type="email" name="email" class="form-control">
+      {{ form.email.label(class="form-label") }}
+      {{ form.email(class="form-control") }}
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Password Confirmation</label>
-      <input type="password" name="password" class="form-control">
+      {{ form.password.label(class="form-label") }}
+      {{ form.password(class="form-control") }}
     </div>
 
     <button type="submit" class="btn btn-primary">

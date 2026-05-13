@@ -3,9 +3,10 @@
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/skills.css') }}">
 {% endblock %}
-
+<meta name="csrf-token" content="{{ csrf_token() }}">
 {% block content %}
 <div class="skills-wrapper">
+
 
   <!-- Page Heading -->
   <div class="skills-heading">
@@ -13,48 +14,26 @@
     <p class="skills-subtitle">Find skills you want to learn from peers.</p>
   </div>
 
-  <!-- Search Bar -->
-  <form method="GET" action="/skills" class="search-form">
-    <input type="hidden" name="category" value="{{ current_category }}">
-    <input type="text" name="search" value="{{ current_search }}" placeholder="Search skills...">
-    <button type="submit">Search</button>
-  </form>
-
-  <!-- Filter Pills -->
   <div class="filter-row">
-    <a href="/skills"
-       class="filter-btn {% if not current_category %}active{% endif %}">All</a>
-    {% for cat in categories %}
-    <a href="/skills?category={{ cat }}"
-       class="filter-btn {% if current_category == cat %}active{% endif %}">{{ cat }}</a>
+    <a href="{{ url_for('skills') }}" class="filter-btn {% if not current_category %}active{% endif %}">All</a>
+    {% for cat in categories or [] %}
+    <a href="{{ url_for('skills', category=cat) }}"
+      class="filter-btn {% if current_category == cat %}active{% endif %}">{{ cat }}</a>
     {% endfor %}
   </div>
 
-  <!-- Post a Skill Form (logged-in users only) -->
-  {% if current_user.is_authenticated %}
-  <div class="post-skill-form">
-    <h3>Post a Skill</h3>
-    <form method="POST" action="{{ url_for('skills') }}">
-      <input  type="text" name="name"       placeholder="Skill name"      required maxlength="100">
-      <input  type="text" name="category"    placeholder="Category"         required>
-      <textarea           name="description" placeholder="Description..."   maxlength="500"></textarea>
-      <button type="submit">Post Skill</button>
-    </form>
-  </div>
-  {% endif %}
 
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="flash flash-{{ category }}">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
   {% endwith %}
 
   <!-- Skills Grid -->
   <div class="skills-grid" id="skills-grid">
-
     {% for skill in skills %}
     <div class="skill-card" data-category="{{ skill.category }}" data-skill-id="{{ skill.id }}">
       <div class="skill-card-inner">
@@ -62,22 +41,21 @@
         <h3 class="skill-name">{{ skill.name }}</h3>
         <p class="skill-desc">{{ skill.description }}</p>
         <p class="skill-author">by {{ skill.owner.name }}</p>
-        <button class="request-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
+
+        {% if skill.user_id != current_user.id %}
+        <button type="button" class="request-btn" data-skill-id="{{ skill.id }}">
           Request
         </button>
+        {% else %}
+        <button class="btn btn-secondary" disabled>Your Skill</button>
+        {% endif %}
       </div>
     </div>
     {% else %}
     <p class="no-results">No skills found. Be the first to post one!</p>
     {% endfor %}
-
   </div>
+
 </div>
 {% endblock %}
 

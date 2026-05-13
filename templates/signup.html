@@ -19,6 +19,7 @@
     {% endif %}
 
     <form method="POST" action="{{ url_for('signup') }}">
+      {{ form.hidden_tag() }}
 
       <div class="form-group">
         <label class="form-label">Full Name</label>

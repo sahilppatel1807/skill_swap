@@ -71,10 +71,12 @@
                         <a href="{{ url_for('chat', user_id=req.from_user.id) }}" class="btn-can-chat"><span class="btn-can-chat-icon">{{ icon_chat_bubble_ellipsis(18) }}</span><span class="btn-can-chat-label">Can Chat</span></a>
                     {% elif req.status == 'pending' %}
                         <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-accept">✔ Accept</button>
                         </form>
                         <form method="POST" action="{{ url_for('decline_request', request_id=req.id) }}">
-                            <button type="submit" class="btn-decline">× Decline</button>
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-decline">✘ Decline</button>
                         </form>
                     {% endif %}
                 </div>
@@ -154,7 +156,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (targetId === 'sent-section') {
                 fetch("{{ url_for('mark_sent_requests_seen') }}", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token() }}"
+                    },
                     body: JSON.stringify({ seen: true })
                 }).then(function () {
                     const dot = document.querySelector('.nav-request-dot');

@@ -5,6 +5,24 @@ $(document).ready(function () {
   var avatarManuallyEdited = false;
   var customCategoryMode = false;
 
+  function dismissProfileNotification(notification) {
+    $(notification).fadeOut(180, function () {
+      $(this).remove();
+    });
+  }
+
+  $('.profile-notification').each(function () {
+    var notification = this;
+
+    setTimeout(function () {
+      dismissProfileNotification(notification);
+    }, 3000);
+  });
+
+  $(document).on('click', '.profile-notification-close', function () {
+    dismissProfileNotification($(this).closest('.profile-notification'));
+  });
+
   function initialsFromName(name) {
     var parts = (name || '').replace(/[^a-z0-9\s]/gi, ' ').trim().split(/\s+/).filter(Boolean);
 

@@ -22,6 +22,13 @@ body {
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.2px;
+  margin-left: clamp(0px, 10vw, 210px);
+}
+
+@media (max-width: 991.98px) {
+  .navbar-brand {
+    margin-left: 0;
+  }
 }
 
 .nav-link {

@@ -76,6 +76,7 @@
 {% block scripts %}
 <script>
   window.initialChatUserId = {{ active_user_id|tojson }};
+  window.csrfToken = "{{ csrf_token() }}";
 </script>
 <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}

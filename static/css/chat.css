@@ -1,12 +1,12 @@
 /* ── Page Layout ───────────────────────────────────────────── */
 .chat-wrapper {
-  max-width: 1200px;
-  margin: 24px auto;
+  max-width: 1040px;
+  margin: 34px auto;
   padding: 0 20px;
 }
 
 .chat-heading {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .chat-title {
@@ -29,14 +29,14 @@
   border: 1px solid #e0e0e0;
   border-radius: 16px;
   overflow: hidden;
-  height: 620px;
+  height: 480px;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
 /* ── LEFT SIDEBAR ───────────────────────────────────────────── */
 .chat-sidebar {
-  width: 280px;
-  min-width: 280px;
+  width: 260px;
+  min-width: 260px;
   border-right: 1px solid #e8e8e8;
   display: flex;
   flex-direction: column;

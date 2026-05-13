@@ -3,13 +3,20 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from sqlalchemy import inspect, text
 from __init__ import create_app, db
 from models import User, Skill, Request, Message, normalize_avatar_initials
+from forms import (
+    LoginForm, SignupForm, ChangePasswordForm,
+    ChangeNicknameForm, ChangeEmailForm, DeleteAccountForm
+)
 
+# ── CREATE APP ─────────────────────────────────────
 app = create_app()
-
 # ── Flask-Login setup ─────────────────────────────────────────────
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+@app.before_request
+def debug():
+    print("➡️", request.method, request.path)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -68,36 +75,29 @@ def index():
 # ── Signup ────────────────────────────────────────────────────────
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        nickname = request.form.get('nickname')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        course = request.form.get('course')
-        bio = request.form.get('bio')
+    form = SignupForm()
 
-        if len(password) < 8:
-            return render_template('signup.html',
-                                   error='Password must be at least 8 characters long.')
-
-        if not any(char.isalpha() for char in password):
-            return render_template('signup.html',
-                                   error='Password must include at least one letter.')
-
-        if not any(char.isdigit() for char in password):
-            return render_template('signup.html',
-                                   error='Password must include at least one number.')
-
-        if password != confirm_password:
-            return render_template('signup.html',
-                                   error='Passwords do not match.')
+    if form.validate_on_submit():
+        name = form.name.data
+        nickname = form.nickname.data
+        email = form.email.data
+        password = form.password.data
+        course = form.course.data
+        bio = form.bio.data
 
         if User.query.filter_by(email=email).first():
-            return render_template('signup.html',
-                                   error='An account with that email already exists.')
+            return render_template(
+                'signup.html',
+                form=form,
+                error='An account with that email already exists.'
+            )
+
         if User.query.filter_by(nickname=nickname).first():
-            return render_template('signup.html', error='Nickname is already taken.')
+            return render_template(
+                'signup.html',
+                form=form,
+                error='Nickname is already taken.'
+            )
 
         user = User(
             name=name,
@@ -114,13 +114,15 @@ def signup():
 
         return redirect(url_for('login'))
 
-    return render_template('signup.html')
+    return render_template('signup.html', form=form)
 # ── Login ─────────────────────────────────────────────────────────
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        identifier = request.form.get('identifier')
-        password = request.form.get('password')
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        identifier = form.identifier.data
+        password = form.password.data
 
         user = User.query.filter_by(email=identifier).first()
 
@@ -133,10 +135,11 @@ def login():
 
         return render_template(
             'login.html',
+            form=form,
             error='Invalid email/nickname or password.'
         )
 
-    return render_template('login.html')
+    return render_template('login.html', form=form)
 
 # ── Logout ────────────────────────────────────────────────────────
 @app.route('/logout')
@@ -148,116 +151,101 @@ def logout():
 @app.route('/settings/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
-
+    form = ChangePasswordForm()
     error = None
-    success = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        current_password = form.current_password.data
+        new_password = form.new_password.data
 
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-
-        # check old password
         if not current_user.check_password(current_password):
             error = 'Current password is incorrect.'
-
-        # simple password validation
-        elif len(new_password) < 6:
-            error = 'Password must be at least 6 characters.'
-
         else:
             current_user.set_password(new_password)
-
             db.session.commit()
-
             logout_user()
-
             return redirect(url_for('login'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_password.html',
-        error=error,
-        success=success
+        form=form,
+        error=error
     )
 
 @app.route('/settings/change-nickname', methods=['GET', 'POST'])
 @login_required
 def change_nickname():
-
+    form = ChangeNicknameForm()
     error = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        new_nickname = form.nickname.data
 
-        new_nickname = request.form.get('nickname')
+        existing_user = User.query.filter_by(nickname=new_nickname).first()
 
-        if not new_nickname:
-            error = 'Nickname is required.'
-
-        elif User.query.filter_by(nickname=new_nickname).first():
+        if existing_user and existing_user.id != current_user.id:
             error = 'This nickname is already taken.'
-
         else:
             current_user.nickname = new_nickname
             db.session.commit()
-
             return redirect(url_for('profile'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_nickname.html',
+        form=form,
         error=error
     )
 
 @app.route('/settings/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email():
-
+    form = ChangeEmailForm()
     error = None
 
-    if request.method == 'POST':
+    if form.validate_on_submit():
+        new_email = form.email.data
+        password = form.password.data
 
-        new_email = request.form.get('email')
-        password = request.form.get('password')
-
-        # verify password
         if not current_user.check_password(password):
             error = 'Incorrect password.'
-
-        # check email already exists
         elif User.query.filter_by(email=new_email).first():
             error = 'Email already exists.'
-
         else:
             current_user.email = new_email
-
             db.session.commit()
-
             return redirect(url_for('profile'))
+
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
 
     return render_template(
         'settings/change_email.html',
+        form=form,
         error=error
     )
 
 @app.route('/settings/delete-account', methods=['GET', 'POST'])
 @login_required
 def delete_account():
-
+    form = DeleteAccountForm()
     error = None
 
-    if request.method == 'POST':
-
-        password = request.form.get('password')
+    if form.validate_on_submit():
+        password = form.password.data
 
         if not current_user.check_password(password):
             error = 'Incorrect password.'
-
         else:
             user_id = current_user.id
-
             logout_user()
 
             user = User.query.get(user_id)
-
             db.session.delete(user)
             db.session.commit()
 
@@ -265,39 +253,199 @@ def delete_account():
 
     return render_template(
         'settings/delete_account.html',
+        form=form,
         error=error
     )
 
 # ── Skills ────────────────────────────────────────────────────────
+
+
+
+# ── Skills Feed with filter + search ────────────────────────────
 @app.route('/skills')
 @login_required
 def skills():
-    all_skills = Skill.query.order_by(Skill.created_at.desc()).all()
-    return render_template('skills.html', skills=all_skills)
+    query    = Skill.query
+    category = request.args.get('category', '').strip()
+    search   = request.args.get('search', '').strip()
 
-@app.route('/skills/create', methods=['POST'])
-@login_required
-def create_skill():
-    data  = request.get_json()
-    skill = Skill(
-        title       = data.get('title'),
-        category    = data.get('category'),
-        description = data.get('description'),
-        user_id     = current_user.id
+    if category:
+        query = query.filter_by(category=category)
+    if search:
+        like  = f'%{search}%'
+        query = query.filter(
+            db.or_(Skill.name.ilike(like), Skill.description.ilike(like))
+        )
+
+    skills_list = query.order_by(Skill.created_at.desc()).all()
+
+    pending_requests  = Request.query.filter_by(
+        from_user_id=current_user.id, status='pending'
+    ).all()
+    pending_skill_ids = [req.skill_id for req in pending_requests]
+
+    categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
+    if not categories:
+        categories = ["Programming", "Design", "Music", "Communication"]
+
+    return render_template('skills.html',
+        skills            = skills_list,
+        categories        = categories,
+        current_category  = category,
+        current_search    = search,
+        pending_skill_ids = pending_skill_ids
     )
+
+
+# ── Post a skill ─────────────────────────────────────────────────
+@app.route('/skills/new', methods=['POST'])
+@login_required
+def post_skill():
+    name        = request.form.get('name', '').strip()
+    category    = request.form.get('category', '').strip()
+    description = request.form.get('description', '').strip()
+
+    errors = []
+    if not name:               errors.append('Skill name is required.')
+    if len(name) > 100:        errors.append('Name must be under 100 characters.')
+    if not category:           errors.append('Category is required.')
+    if len(description) > 500: errors.append('Description must be under 500 characters.')
+
+    if errors:
+        for e in errors: flash(e, 'error')
+        return redirect(url_for('skills.skills'))
+
+    skill = Skill(name=name, category=category,
+                  description=description, user_id=current_user.id)
     db.session.add(skill)
     db.session.commit()
-    return jsonify({ 'status': 'ok', 'id': skill.id })
+    flash('Skill posted!', 'success')
+    return redirect(url_for('skills.skills'))
 
-@app.route('/skills/delete/<int:skill_id>', methods=['POST'])
+
+# ── Request a skill (AJAX) ───────────────────────────────────────
+# @app.route('/skills/send/<int:skill_id>', methods=['POST'])
+# @login_required
+# def send_request(skill_id):
+#     print(app.url_map)
+#     skill = Skill.query.get_or_404(skill_id)
+
+#     if skill.user_id == current_user.id:
+#         return jsonify({'status': 'error', 'message': 'You cannot request your own skill.'}), 400
+
+#     existing = Request.query.filter_by(
+#         skill_id     = skill_id,
+#         from_user_id = current_user.id,
+#         status       = 'pending'
+#     ).first()
+#     if existing:
+#         return jsonify({'status': 'error', 'message': 'You already have a pending request for this skill.'}), 400
+
+#     req = Request(
+#         skill_id     = skill_id,
+#         from_user_id = current_user.id,
+#         to_user_id   = skill.user_id,
+#         message      = request.form.get('message', '').strip()
+#     )
+#     db.session.add(req)
+#     db.session.commit()
+#     return jsonify({'status': 'success', 'message': 'Request sent!'})
+
+
+# ── Profile ──────────────────────────────────────────────────────
+# @app.route('/profile')
+# @login_required
+# def profile():
+#     my_skills = Skill.query.filter_by(user_id=current_user.id)\
+#                            .order_by(Skill.created_at.desc()).all()
+#     return render_template('profile.html', user=current_user, skills=my_skills)
+
+
+# @app.route('/skills/add', methods=['POST'])
+# @login_required
+# def add_skill():
+#     name        = request.form.get('name', '').strip()
+#     category    = request.form.get('category', '').strip()
+#     level       = request.form.get('level', '').strip()
+#     description = request.form.get('description', '').strip()
+
+#     errors = []
+#     if not name:               errors.append('Skill name is required.')
+#     if len(name) > 100:        errors.append('Name must be under 100 characters.')
+#     if not category:           errors.append('Category is required.')
+#     if len(description) > 500: errors.append('Description must be under 500 characters.')
+
+#     if errors:
+#         for e in errors: flash(e, 'error')
+#         return redirect(url_for('skills.profile'))
+
+#     skill = Skill(user_id=current_user.id, name=name,
+#                   category=category, level=level, description=description)
+#     db.session.add(skill)
+#     db.session.commit()
+#     flash('Skill added!', 'success')
+#     return redirect(url_for('skills.profile'))
+
+
+# @app.route('/skills/edit/<int:skill_id>', methods=['POST'])
+# @login_required
+# def edit_skill(skill_id):
+#     skill = Skill.query.get_or_404(skill_id)
+#     if skill.user_id != current_user.id:
+#         flash('Not authorised.', 'error')
+#         return redirect(url_for('skills.profile'))
+
+#     skill.name        = request.form.get('name',        skill.name).strip()
+#     skill.category    = request.form.get('category',    skill.category).strip()
+#     skill.level       = request.form.get('level',       getattr(skill, 'level', '')).strip()
+#     skill.description = request.form.get('description', skill.description).strip()
+#     db.session.commit()
+#     flash('Skill updated!', 'success')
+#     return redirect(url_for('skills.profile'))
+
+
+# @app.route('/skills/delete/<int:skill_id>', methods=['POST'])
+# @login_required
+# def delete_skill(skill_id):
+#     skill = Skill.query.get_or_404(skill_id)
+#     if skill.user_id != current_user.id:
+#         flash('Not authorised.', 'error')
+#         return redirect(url_for('skills.profile'))
+
+#     db.session.delete(skill)
+#     db.session.commit()
+#     flash('Skill deleted.', 'success')
+#     return redirect(url_for('skills.profile'))
+@app.route('/request_skill', methods=['POST'])
 @login_required
-def delete_skill(skill_id):
+def request_skill():
+    skill_id = request.form.get('skill_id')
+
     skill = Skill.query.get_or_404(skill_id)
-    if skill.user_id != current_user.id:
-        return jsonify({ 'status': 'error', 'message': 'Unauthorized' }), 403
-    db.session.delete(skill)
+
+    if skill.user_id == current_user.id:
+        return jsonify({'status': 'error', 'message': 'Cannot request own skill'}), 400
+
+    existing = Request.query.filter_by(
+        skill_id=skill_id,
+        from_user_id=current_user.id,
+        status='pending'
+    ).first()
+
+    if existing:
+        return jsonify({'status': 'error', 'message': 'Already requested'}), 400
+
+    req = Request(
+        skill_id=skill_id,
+        from_user_id=current_user.id,
+        to_user_id=skill.user_id,
+        status='pending'
+    )
+
+    db.session.add(req)
     db.session.commit()
-    return jsonify({ 'status': 'ok' })
+
+    return jsonify({'status': 'ok'})
 
 # ── Requests ──────────────────────────────────────────────────────
 @app.route('/requests')

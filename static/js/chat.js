@@ -103,6 +103,9 @@ function sendMessage() {
     url: '/chat/send',
     method: 'POST',
     contentType: 'application/json',
+    headers: {
+    'X-CSRFToken': window.csrfToken
+    },
     data: JSON.stringify({
       user_id: currentUserId,
       message: text

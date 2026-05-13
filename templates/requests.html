@@ -141,7 +141,10 @@ document.addEventListener('DOMContentLoaded', function () {
             if (targetId === 'sent-section') {
                 fetch("{{ url_for('mark_sent_requests_seen') }}", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': "{{ csrf_token() }}"
+                    },
                     body: JSON.stringify({ seen: true })
                 }).then(function () {
                     const dot = document.querySelector('.nav-request-dot');

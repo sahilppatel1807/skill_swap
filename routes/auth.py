@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_user, logout_user, login_required, current_user
 from __init__ import db
@@ -50,6 +51,8 @@ def login():
         if not user:
             user = User.query.filter_by(nickname=identifier).first()
         if user and user.check_password(password):
+            user.last_login = datetime.utcnow()
+            db.session.commit()
             login_user(user)
             return redirect(url_for('skills.skills'))
         return render_template('login.html', form=form,

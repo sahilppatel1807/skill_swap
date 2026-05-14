@@ -37,6 +37,7 @@ class User(UserMixin, db.Model):
     bio        = db.Column(db.Text)
     avatar_initials = db.Column(db.String(2))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
 
     @property
     def avatar(self):
@@ -63,6 +64,7 @@ class Skill(db.Model):
     level       = db.Column(db.String(20))
     description = db.Column(db.Text)
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     owner    = db.relationship('User', backref='skills', lazy=True)
     requests = db.relationship('Request', backref='skill', lazy=True,

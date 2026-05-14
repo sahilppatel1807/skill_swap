@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from __init__ import db
+from datetime import datetime
 from models import Skill, normalize_avatar_initials
 
 profile_bp = Blueprint('profile', __name__)
@@ -74,6 +75,7 @@ def edit_skill(skill_id):
     skill.category = data.get('category', skill.category).strip()
     skill.level = data.get('level', skill.level or '').strip()
     skill.description = data.get('description', data.get('desc', skill.description or '')).strip()
+    skill.updated_at = datetime.utcnow()
     db.session.commit()
     if not request.is_json:
         flash('Skill updated!', 'success')

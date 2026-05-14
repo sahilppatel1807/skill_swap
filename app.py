@@ -259,9 +259,6 @@ def delete_account():
 
 # ── Skills ────────────────────────────────────────────────────────
 
-
-
-# ── Skills Feed with filter + search ────────────────────────────
 @app.route('/skills')
 @login_required
 def skills():
@@ -279,10 +276,11 @@ def skills():
 
     skills_list = query.order_by(Skill.created_at.desc()).all()
 
-    pending_requests  = Request.query.filter_by(
-        from_user_id=current_user.id, status='pending'
+    my_requests = Request.query.filter_by(
+        from_user_id=current_user.id
     ).all()
-    pending_skill_ids = [req.skill_id for req in pending_requests]
+
+    request_map = {r.skill_id: r.status for r in my_requests}
 
     categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
     if not categories:
@@ -293,8 +291,35 @@ def skills():
         categories        = categories,
         current_category  = category,
         current_search    = search,
-        pending_skill_ids = pending_skill_ids
+        request_map       = request_map
     )
+
+# ── Skills Feed with filter + search ────────────────────────────
+@app.route('/request_skill', methods=['POST'])
+@login_required
+def request_skill():
+    skill_id = request.form.get('skill_id')
+    skill = Skill.query.get(skill_id)
+
+    existing = Request.query.filter_by(
+        from_user_id=current_user.id,
+        skill_id=skill_id
+    ).first()
+
+    if existing:
+        return jsonify({'message': 'Already requested'}), 400
+
+    new_req = Request(
+        from_user_id=current_user.id,
+        to_user_id=skill.user_id,
+        skill_id=skill_id,
+        status='pending'
+    )
+
+    db.session.add(new_req)
+    db.session.commit()
+
+    return jsonify({'message': 'ok'})
 
 
 # ── Post a skill ─────────────────────────────────────────────────
@@ -322,130 +347,6 @@ def post_skill():
     flash('Skill posted!', 'success')
     return redirect(url_for('skills.skills'))
 
-
-# ── Request a skill (AJAX) ───────────────────────────────────────
-# @app.route('/skills/send/<int:skill_id>', methods=['POST'])
-# @login_required
-# def send_request(skill_id):
-#     print(app.url_map)
-#     skill = Skill.query.get_or_404(skill_id)
-
-#     if skill.user_id == current_user.id:
-#         return jsonify({'status': 'error', 'message': 'You cannot request your own skill.'}), 400
-
-#     existing = Request.query.filter_by(
-#         skill_id     = skill_id,
-#         from_user_id = current_user.id,
-#         status       = 'pending'
-#     ).first()
-#     if existing:
-#         return jsonify({'status': 'error', 'message': 'You already have a pending request for this skill.'}), 400
-
-#     req = Request(
-#         skill_id     = skill_id,
-#         from_user_id = current_user.id,
-#         to_user_id   = skill.user_id,
-#         message      = request.form.get('message', '').strip()
-#     )
-#     db.session.add(req)
-#     db.session.commit()
-#     return jsonify({'status': 'success', 'message': 'Request sent!'})
-
-
-# ── Profile ──────────────────────────────────────────────────────
-# @app.route('/profile')
-# @login_required
-# def profile():
-#     my_skills = Skill.query.filter_by(user_id=current_user.id)\
-#                            .order_by(Skill.created_at.desc()).all()
-#     return render_template('profile.html', user=current_user, skills=my_skills)
-
-
-# @app.route('/skills/add', methods=['POST'])
-# @login_required
-# def add_skill():
-#     name        = request.form.get('name', '').strip()
-#     category    = request.form.get('category', '').strip()
-#     level       = request.form.get('level', '').strip()
-#     description = request.form.get('description', '').strip()
-
-#     errors = []
-#     if not name:               errors.append('Skill name is required.')
-#     if len(name) > 100:        errors.append('Name must be under 100 characters.')
-#     if not category:           errors.append('Category is required.')
-#     if len(description) > 500: errors.append('Description must be under 500 characters.')
-
-#     if errors:
-#         for e in errors: flash(e, 'error')
-#         return redirect(url_for('skills.profile'))
-
-#     skill = Skill(user_id=current_user.id, name=name,
-#                   category=category, level=level, description=description)
-#     db.session.add(skill)
-#     db.session.commit()
-#     flash('Skill added!', 'success')
-#     return redirect(url_for('skills.profile'))
-
-
-# @app.route('/skills/edit/<int:skill_id>', methods=['POST'])
-# @login_required
-# def edit_skill(skill_id):
-#     skill = Skill.query.get_or_404(skill_id)
-#     if skill.user_id != current_user.id:
-#         flash('Not authorised.', 'error')
-#         return redirect(url_for('skills.profile'))
-
-#     skill.name        = request.form.get('name',        skill.name).strip()
-#     skill.category    = request.form.get('category',    skill.category).strip()
-#     skill.level       = request.form.get('level',       getattr(skill, 'level', '')).strip()
-#     skill.description = request.form.get('description', skill.description).strip()
-#     db.session.commit()
-#     flash('Skill updated!', 'success')
-#     return redirect(url_for('skills.profile'))
-
-
-# @app.route('/skills/delete/<int:skill_id>', methods=['POST'])
-# @login_required
-# def delete_skill(skill_id):
-#     skill = Skill.query.get_or_404(skill_id)
-#     if skill.user_id != current_user.id:
-#         flash('Not authorised.', 'error')
-#         return redirect(url_for('skills.profile'))
-
-#     db.session.delete(skill)
-#     db.session.commit()
-#     flash('Skill deleted.', 'success')
-#     return redirect(url_for('skills.profile'))
-@app.route('/request_skill', methods=['POST'])
-@login_required
-def request_skill():
-    skill_id = request.form.get('skill_id')
-
-    skill = Skill.query.get_or_404(skill_id)
-
-    if skill.user_id == current_user.id:
-        return jsonify({'status': 'error', 'message': 'Cannot request own skill'}), 400
-
-    existing = Request.query.filter_by(
-        skill_id=skill_id,
-        from_user_id=current_user.id,
-        status='pending'
-    ).first()
-
-    if existing:
-        return jsonify({'status': 'error', 'message': 'Already requested'}), 400
-
-    req = Request(
-        skill_id=skill_id,
-        from_user_id=current_user.id,
-        to_user_id=skill.user_id,
-        status='pending'
-    )
-
-    db.session.add(req)
-    db.session.commit()
-
-    return jsonify({'status': 'ok'})
 
 # ── Requests ──────────────────────────────────────────────────────
 @app.route('/requests')

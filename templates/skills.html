@@ -2,8 +2,8 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/skills.css') }}">
-{% endblock %}
 <meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
 {% block content %}
 <div class="skills-wrapper">
 
@@ -15,9 +15,9 @@
   </div>
 
   <div class="filter-row">
-    <a href="{{ url_for('skills') }}" class="filter-btn {% if not current_category %}active{% endif %}">All</a>
+    <a href="{{ url_for('skills.skills') }}" class="filter-btn {% if not current_category %}active{% endif %}">All</a>
     {% for cat in categories or [] %}
-    <a href="{{ url_for('skills', category=cat) }}"
+    <a href="{{ url_for('skills.skills', category=cat) }}"
       class="filter-btn {% if current_category == cat %}active{% endif %}">{{ cat }}</a>
     {% endfor %}
   </div>

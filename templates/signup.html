@@ -18,7 +18,7 @@
     <div class="auth-error">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('signup') }}">
+    <form method="POST" action="{{ url_for('auth.signup') }}">
       {{ form.hidden_tag() }}
 
       <div class="form-group">
@@ -73,7 +73,7 @@
 
     <p class="auth-footer">
       Already have an account?
-      <a href="{{ url_for('login') }}" class="auth-link">Login</a >
+      <a href="{{ url_for('auth.login') }}" class="auth-link">Login</a >
     </p >
 
   </div>

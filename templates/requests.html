@@ -68,13 +68,13 @@
 
                 <div class="request-actions">
                     {% if req.status == 'accepted' %}
-                        <a href="{{ url_for('chat', user_id=req.from_user.id) }}" class="btn-can-chat"><span class="btn-can-chat-icon">{{ icon_chat_bubble_ellipsis(18) }}</span><span class="btn-can-chat-label">Can Chat</span></a>
+                        <a href="{{ url_for('chat.chat', user_id=req.from_user.id) }}" class="btn-can-chat"><span class="btn-can-chat-icon">{{ icon_chat_bubble_ellipsis(18) }}</span><span class="btn-can-chat-label">Can Chat</span></a>
                     {% elif req.status == 'pending' %}
-                        <form method="POST" action="{{ url_for('accept_request', request_id=req.id) }}">
+                        <form method="POST" action="{{ url_for('requests.accept_request', request_id=req.id) }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-accept">✔ Accept</button>
                         </form>
-                        <form method="POST" action="{{ url_for('decline_request', request_id=req.id) }}">
+                        <form method="POST" action="{{ url_for('requests.decline_request', request_id=req.id) }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn-decline">✘ Decline</button>
                         </form>
@@ -117,7 +117,7 @@
                 </div>
                 <div class="request-actions">
                     {% if req.status == 'accepted' %}
-                        <a href="{{ url_for('chat', user_id=req.to_user.id) }}" class="btn-can-chat"><span class="btn-can-chat-icon">{{ icon_chat_bubble_ellipsis(18) }}</span><span class="btn-can-chat-label">Can Chat</span></a>
+                        <a href="{{ url_for('chat.chat', user_id=req.to_user.id) }}" class="btn-can-chat"><span class="btn-can-chat-icon">{{ icon_chat_bubble_ellipsis(18) }}</span><span class="btn-can-chat-label">Can Chat</span></a>
                     {% endif %}
                 </div>
             </div>
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // If sender opens Sent Requests, mark responded requests as seen
             // so the navbar dot disappears after viewing responses.
             if (targetId === 'sent-section') {
-                fetch("{{ url_for('mark_sent_requests_seen') }}", {
+                fetch("{{ url_for('requests.mark_sent_requests_seen') }}", {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',

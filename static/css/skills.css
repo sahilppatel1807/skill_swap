@@ -59,6 +59,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  align-items: stretch;
 }
 
 /* ── Skill Card ─────────────────────────────────────────────── */
@@ -67,6 +68,10 @@
   border: 1px solid #e8e8e8;
   border-radius: 14px;
   transition: border-color 0.15s, transform 0.15s;
+  display: flex;
+  min-width: 0;      
+  overflow: hidden;
+  height: 240px;
 }
 
 .skill-card:hover {
@@ -78,7 +83,9 @@
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-width: 0;     
+  overflow: hidden;
 }
 
 /* ── Category Badge ─────────────────────────────────────────── */
@@ -100,6 +107,9 @@
   font-weight: 700;
   color: #1a1a2e;
   margin: 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .skill-desc {
@@ -107,13 +117,21 @@
   color: #666;
   line-height: 1.6;
   margin: 0 0 12px;
-  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  min-width: 0;
 }
 
 .skill-author {
   font-size: 12px;
   color: #999;
-  margin: 0 0 16px;
+  margin: auto 0 16px;
+  min-width: 0;     
+  overflow: hidden;
 }
 
 /* ── Request Button ─────────────────────────────────────────── */
@@ -141,7 +159,6 @@
   transform: scale(0.97);
 }
 
-/* Requested state */
 .request-btn.requested {
   background: #2d6a4f;
   color: #ffffff;
@@ -174,23 +191,16 @@
   }
 }
 
-
-.search-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 13px;
-  padding: 7px 0;
-  min-width: 0;
+/* ── Search ─────────────────────────────────────────────────── */
+.search-row {
+  margin-bottom: 32px;
 }
-
 
 .search-box {
   display: flex;
   align-items: center;
-  width: fit-content;        
-  min-width: 360px;         
+  width: fit-content;
+  min-width: 360px;
   background: #fff;
   border: 1.5px solid #d8d8d8;
   border-radius: 14px;
@@ -198,17 +208,38 @@
   gap: 8px;
 }
 
+.search-box:focus-within {
+  border-color: #1a3a6b;
+  box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.08);
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: #1a1a2e;
+  padding: 7px 0;
+  min-width: 0;
+}
+
+.search-box input::placeholder {
+  color: #c0c0c0;
+}
 
 .search-box button {
-  border-radius: 10px;         
+  border-radius: 10px;
   padding: 9px 20px;
   background: #1a3a6b;
   color: #fff;
   border: none;
+  font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.search-row {
-  margin-bottom: 32px;         
+.search-box button:hover {
+  background: #15305a;
 }
-

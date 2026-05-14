@@ -22,6 +22,14 @@
     {% endfor %}
   </div>
 
+ <div class="search-row">
+  <div class="search-box">
+    <i class="ti ti-search" style="color:#bbb; font-size:16px; flex-shrink:0;"></i>
+    <input type="text" placeholder="Search skills, e.g. Python, UI Design…" />
+    <button>Search</button>  
+  </div>
+</div>
+
 
   <!-- Flash Messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -42,12 +50,30 @@
         <p class="skill-desc">{{ skill.description }}</p>
         <p class="skill-author">by {{ skill.owner.name }}</p>
 
-        {% if skill.user_id != current_user.id %}
+        {% set status = request_map.get(skill.id) %}
+        {% if skill.user_id == current_user.id %}
+        <button class="btn btn-secondary" disabled>Your Skill</button>
+
+        {% elif status == 'pending' %}
+        <button class="request-btn requested" disabled>
+          Requested
+        </button>
+
+        {% elif status == 'accepted' %}
+        <button class="request-btn accepted" disabled>
+          Accepted
+        </button>
+
+        {% elif status == 'declined' %}
+        <button class="request-btn declined" disabled>
+          Declined
+        </button>
+
+        {% else %}
         <button type="button" class="request-btn" data-skill-id="{{ skill.id }}">
           Request
         </button>
-        {% else %}
-        <button class="btn btn-secondary" disabled>Your Skill</button>
+        
         {% endif %}
       </div>
     </div>

@@ -1,22 +1,20 @@
-from flask import render_template, redirect, url_for, request, jsonify, flash
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from flask import request
+from flask_login import LoginManager, current_user
 from sqlalchemy import inspect, text
 from __init__ import create_app, db
-from models import User, Skill, Request, Message, normalize_avatar_initials
-from forms import (
-    LoginForm, SignupForm, ChangePasswordForm,
-    ChangeNicknameForm, ChangeEmailForm, DeleteAccountForm
-)
+from models import User, Request
 
-# ── CREATE APP ─────────────────────────────────────
 app = create_app()
-# ── Flask-Login setup ─────────────────────────────────────────────
+
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'auth.login'
+
+
 @app.before_request
 def debug():
     print("➡️", request.method, request.path)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -25,29 +23,36 @@ def load_user(user_id):
 
 @app.context_processor
 def inject_nav_pending_requests():
-    """Compute navbar Requests red-dot count (unseen request activity)."""
     if current_user.is_authenticated:
-        # Recipient side: show dot for pending incoming requests not yet handled.
         incoming_pending_unseen = Request.query.filter(
             Request.to_user_id == current_user.id,
             Request.status == 'pending',
             Request.to_user_seen.is_(False),
         ).count()
-
-        # Sender side: show dot when the recipient has responded (accepted/declined)
-        # and the sender hasn't seen that response yet.
         outgoing_response_unseen = Request.query.filter(
             Request.from_user_id == current_user.id,
             Request.status != 'pending',
             Request.from_user_seen.is_(False),
         ).count()
-
         return {'nav_requests_unseen_count': incoming_pending_unseen + outgoing_response_unseen}
-
     return {'nav_requests_unseen_count': 0}
 
 
-# ── Create tables on startup ──────────────────────────────────────
+from routes.main import main_bp
+from routes.auth import auth_bp
+from routes.skills import skills_bp
+from routes.requests import requests_bp
+from routes.profile import profile_bp
+from routes.chat import chat_bp
+
+app.register_blueprint(main_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(skills_bp)
+app.register_blueprint(requests_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(chat_bp)
+
+
 with app.app_context():
     db.create_all()
     inspector = inspect(db.engine)
@@ -58,8 +63,6 @@ with app.app_context():
     if 'nickname' not in user_columns:
         db.session.execute(text("ALTER TABLE users ADD COLUMN nickname VARCHAR(80)"))
         db.session.commit()
-
-    # Ensure notification columns exist in the `requests` table (no migrations here).
     request_columns = [column['name'] for column in inspector.get_columns('requests')]
     if 'to_user_seen' not in request_columns:
         db.session.execute(text('ALTER TABLE requests ADD COLUMN to_user_seen INTEGER NOT NULL DEFAULT 0'))
@@ -633,7 +636,6 @@ def profile_delete_skill(skill_id):
         flash('Skill deleted.', 'success')
         return redirect(url_for('profile'))
 
-    return jsonify({ 'status': 'ok' })
 
 if __name__ == '__main__':
     app.run(debug=True)

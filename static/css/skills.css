@@ -141,6 +141,21 @@
   transform: scale(0.97);
 }
 
+/* Requested state */
+.request-btn.requested {
+  background: #2d6a4f;
+  color: #ffffff;
+  cursor: not-allowed;
+}
+
+.request-btn.requested:hover {
+  background: #2d6a4f;
+}
+
+.request-btn.requested:active {
+  transform: none;
+}
+
 /* ── Hidden cards when filtered ─────────────────────────────── */
 .skill-card.hidden {
   display: none;
@@ -158,3 +173,42 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  padding: 7px 0;
+  min-width: 0;
+}
+
+
+.search-box {
+  display: flex;
+  align-items: center;
+  width: fit-content;        
+  min-width: 360px;         
+  background: #fff;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 14px;
+  padding: 6px 6px 6px 14px;
+  gap: 8px;
+}
+
+
+.search-box button {
+  border-radius: 10px;         
+  padding: 9px 20px;
+  background: #1a3a6b;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+
+.search-row {
+  margin-bottom: 32px;         
+}
+

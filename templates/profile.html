@@ -124,7 +124,7 @@
         <h5 class="modal-title fw-bold">Edit Profile</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" action="{{ url_for('edit_profile') }}">
+      <form method="POST" action="{{ url_for('profile.edit_profile') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="modal-body pt-2">
           <div class="profile-avatar-preview">

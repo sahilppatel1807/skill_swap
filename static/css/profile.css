@@ -116,7 +116,7 @@
 }
 
 .profile-name {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 700;
   color: #1a1a2e;
   margin: 0 0 4px;
@@ -230,6 +230,8 @@
   border-radius: 12px;
   margin-bottom: 12px;
   transition: border-color 0.15s;
+
+  min-width: 0;
 }
 
 .skill-card:hover {
@@ -251,12 +253,16 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .skill-name {
   font-size: 15px;
   font-weight: 700;
   color: #1a1a2e;
+
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ── Category Badge ─────────────────────────────────────────── */
@@ -274,6 +280,15 @@
   color: #666;
   line-height: 1.6;
   margin: 0;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;  
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* ── Edit / Delete Icons ────────────────────────────────────── */

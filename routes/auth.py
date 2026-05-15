@@ -1,14 +1,22 @@
-from datetime import datetime
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from __init__ import db
 from models import User, normalize_avatar_initials
 from forms import (
     LoginForm, SignupForm, ChangePasswordForm,
-    ChangeNicknameForm, ChangeEmailForm, DeleteAccountForm
+    ChangeNicknameForm,ChangeNameForm, ChangeEmailForm, DeleteAccountForm
 )
+from __init__ import limiter
+from flask_limiter.errors import RateLimitExceeded
 
 auth_bp = Blueprint('auth', __name__)
+
+
+@auth_bp.errorhandler(RateLimitExceeded)
+def handle_rate_limit(e):
+    form = LoginForm()
+    return render_template('login.html', form=form,
+                           error='Too many login attempts. Please wait 1 minute and try again.'), 429
 
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
@@ -31,30 +39,39 @@ def signup():
 
         user = User(
             name=name, nickname=nickname, email=email, course=course, bio=bio,
-            avatar_initials=normalize_avatar_initials('', name)
+            avatar_initials=normalize_avatar_initials(nickname, name)
         )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
         return redirect(url_for('auth.login'))
+    
+    error = None
+    if request.method == 'POST' and form.errors:
+        error = next(iter(form.errors.values()))[0]
+    return render_template('signup.html', form=form, error=error)
 
-    return render_template('signup.html', form=form)
+    
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        identifier = form.identifier.data
+        identifier = form.identifier.data.strip()
         password = form.password.data
-        user = User.query.filter_by(email=identifier).first()
+        user = User.query.filter(
+            db.func.lower(User.email) == identifier.lower()
+        ).first()
+
         if not user:
             user = User.query.filter_by(nickname=identifier).first()
+
         if user and user.check_password(password):
-            user.last_login = datetime.utcnow()
-            db.session.commit()
             login_user(user)
             return redirect(url_for('skills.skills'))
+
         return render_template('login.html', form=form,
                                error='Invalid email/nickname or password.')
     return render_template('login.html', form=form)
@@ -75,33 +92,36 @@ def change_password():
     if form.validate_on_submit():
         if not current_user.check_password(form.current_password.data):
             error = 'Current password is incorrect.'
+        elif current_user.check_password(form.new_password.data):  
+            error = 'New password must be different from your current password.'
         else:
             current_user.set_password(form.new_password.data)
             db.session.commit()
-            logout_user()
-            return redirect(url_for('auth.login'))
+            flash('Password updated successfully.', 'success')
+            return redirect(url_for('auth.change_password'))
     elif request.method == 'POST':
         error = next(iter(form.errors.values()))[0]
     return render_template('settings/change_password.html', form=form, error=error)
 
 
-@auth_bp.route('/settings/change-nickname', methods=['GET', 'POST'])
+@auth_bp.route('/settings/change-name', methods=['GET', 'POST'])
 @login_required
-def change_nickname():
-    form = ChangeNicknameForm()
+def change_name():
+    form = ChangeNameForm()
     error = None
+    success = None
     if form.validate_on_submit():
-        new_nickname = form.nickname.data
-        existing_user = User.query.filter_by(nickname=new_nickname).first()
-        if existing_user and existing_user.id != current_user.id:
-            error = 'This nickname is already taken.'
+        new_name = form.name.data.strip()
+        if new_name == current_user.name:
+            error = 'New name is the same as your current name.'
         else:
-            current_user.nickname = new_nickname
+            current_user.name = new_name
             db.session.commit()
-            return redirect(url_for('profile.profile'))
+            flash('Full name updated successfully.', 'success')  
+            return redirect(url_for('auth.change_name')) 
     elif request.method == 'POST':
         error = next(iter(form.errors.values()))[0]
-    return render_template('settings/change_nickname.html', form=form, error=error)
+    return render_template('settings/change_name.html', form=form, error=error, success=success)
 
 
 @auth_bp.route('/settings/change-email', methods=['GET', 'POST'])
@@ -114,16 +134,18 @@ def change_email():
         password = form.password.data
         if not current_user.check_password(password):
             error = 'Incorrect password.'
+        elif new_email == current_user.email:
+            error = 'New email is the same as your current email.'
         elif User.query.filter_by(email=new_email).first():
             error = 'Email already exists.'
         else:
             current_user.email = new_email
             db.session.commit()
-            return redirect(url_for('profile.profile'))
+            flash('Email updated successfully.', 'success')
+            return redirect(url_for('auth.change_email'))
     elif request.method == 'POST':
         error = next(iter(form.errors.values()))[0]
     return render_template('settings/change_email.html', form=form, error=error)
-
 
 @auth_bp.route('/settings/delete-account', methods=['GET', 'POST'])
 @login_required

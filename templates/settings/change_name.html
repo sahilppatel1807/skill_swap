@@ -8,10 +8,9 @@
 <div class="auth-wrapper">
   <div class="auth-card">
     <div class="auth-heading">
-      <h2 class="auth-title">Change Password</h2>
-      <p class="auth-subtitle">Choose a strong password.</p>
+      <h2 class="auth-title">Change Full Name</h2>
+      <p class="auth-subtitle">Update your display name.</p>
     </div>
-    
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -28,14 +27,10 @@
     <form method="POST">
       {{ form.hidden_tag() }}
       <div class="form-group">
-        <label class="form-label">Current Password</label>
-        {{ form.current_password(class="auth-input", placeholder="Current password") }}
+        <label class="form-label">New Full Name</label>
+        {{ form.name(class="auth-input", placeholder="Enter your new full name") }}
       </div>
-      <div class="form-group">
-        <label class="form-label">New Password</label>
-        {{ form.new_password(class="auth-input", placeholder="At least 8 characters", minlength="8") }}
-      </div>
-      <button type="submit" class="auth-btn">Update Password</button>
+      <button type="submit" class="auth-btn">Update Full Name</button>
     </form>
 
     <p class="auth-footer">

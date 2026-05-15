@@ -10,18 +10,24 @@ def make_avatar_initials(name):
 
     if len(parts) >= 2:
         initials = parts[0][0] + parts[1][0]
-    elif parts:
-        initials = parts[0][:2]
+    elif len(parts) == 1:
+        word = parts[0]
+        if len(word) >= 2:
+            initials = word[:2]
+        else:
+            initials = word[0] * 2
     else:
-        initials = 'US'
+        initials = '??'
 
-    return initials.upper().ljust(2, 'U')[:2]
+    return initials.upper()
 
 
 def normalize_avatar_initials(value, fallback_name=''):
     cleaned = ''.join(ch for ch in value or '' if ch.isalnum())
-    if cleaned:
-        return cleaned.upper()[:2].ljust(2, cleaned[0].upper())
+    if len(cleaned) >= 2:
+        return cleaned[:2].upper()
+    elif len(cleaned) == 1:
+        return (cleaned[0] * 2).upper()
     return make_avatar_initials(fallback_name)
 
 # ── User ──────────────────────────────────────────────────────────

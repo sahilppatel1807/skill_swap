@@ -1,38 +1,45 @@
 {% extends "base.html" %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-  <h2>Change Email</h2>
-
-  {% if error %}
-  <div class="alert alert-danger">{{ error }}</div>
-  {% endif %}
-
-  <form method="POST">
-    {{ form.hidden_tag() }}
-
-    <div class="mb-3">
-      <label class="form-label">Current Email</label>
-      <input
-        type="email"
-        class="form-control"
-        value="{{ current_user.email }}"
-        readonly>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-heading">
+      <h2 class="auth-title">Change Email</h2>
+      <p class="auth-subtitle">Current email: {{ current_user.email }}</p>
     </div>
 
-    <div class="mb-3">
-      {{ form.email.label(class="form-label") }}
-      {{ form.email(class="form-control") }}
-    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="auth-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
 
-    <div class="mb-3">
-      {{ form.password.label(class="form-label") }}
-      {{ form.password(class="form-control") }}
-    </div>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">
+        <label class="form-label">New Email</label>
+        {{ form.email(class="auth-input", placeholder="New email address") }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        {{ form.password(class="auth-input", placeholder="Enter your password") }}
+      </div>
+      <button type="submit" class="auth-btn">Update Email</button>
+    </form>
 
-    <button type="submit" class="btn btn-primary">
-      Update Email
-    </button>
-  </form>
+    <p class="auth-footer">
+      <a href="{{ url_for('profile.profile') }}" class="auth-link">← Back to Profile</a>
+    </p>
+  </div>
 </div>
 {% endblock %}

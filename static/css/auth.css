@@ -157,3 +157,14 @@
   background: #15305a;
   color: #ffffff;
 }
+
+/* ── Success Message ────────────────────────────────────────── */
+.auth-success {
+  background: #e6f4ea;
+  border: 1px solid #a8d5b5;
+  border-radius: 8px;
+  color: #2d6a4f;
+  font-size: 13px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+}

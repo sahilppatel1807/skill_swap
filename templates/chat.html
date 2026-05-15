@@ -21,11 +21,11 @@
       {% for conn in connections %}
       <div class="connection-item {% if conn.id == active_user_id %}active{% endif %}"
            data-user-id="{{ conn.id }}"
-           data-name="{{ conn.name }}"
+           data-name="{{ conn.nickname }}"
            data-avatar="{{ conn.avatar }}">
         <div class="avatar">{{ conn.avatar }}</div>
         <div class="connection-info">
-          <div class="connection-name">{{ conn.name }}</div>
+          <div class="connection-name">{{ conn.nickname }}</div>
           <div class="connection-preview">Click to view messages</div>
         </div>
       </div>

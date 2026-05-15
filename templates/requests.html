@@ -56,7 +56,7 @@
             <div class="request-row">
                 <div class="request-details">
                     <h5 class="request-card-title">{{ req.skill.name }}</h5>
-                    <p class="request-meta">Requested by {{ req.from_user.name }}</p>
+                    <p class="request-meta">Requested by {{ req.from_user.nickname }}</p>
                     {% if req.status == 'accepted' %}
                         <span class="badge-accepted">Accepted</span>
                     {% elif req.status == 'declined' %}
@@ -106,7 +106,7 @@
             <div class="request-row">
                 <div class="request-details">
                     <h5 class="request-card-title">{{ req.skill.name }}</h5>
-                    <p class="request-meta">Sent to {{ req.to_user.name }}</p>
+                    <p class="request-meta">Sent to {{ req.to_user.nickname }}</p>
                     {% if req.status == 'accepted' %}
                         <span class="badge-accepted">Accepted</span>
                     {% elif req.status == 'declined' %}

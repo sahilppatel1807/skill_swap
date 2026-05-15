@@ -88,6 +88,15 @@ function sendMessage() {
 
   if (text === '' || !currentUserId) return;
 
+  if (text.length > 500) {
+    input.val('');
+    $('#chat-messages').append(
+      '<div class="message-error">Message is too long. Please keep it under 500 characters.</div>'
+    );
+    scrollToBottom();
+    return;
+  }
+
   // Show bubble immediately
   var bubble = $(
     '<div class="message sent">' +
@@ -107,9 +116,22 @@ function sendMessage() {
       user_id: currentUserId,
       message: text
     }),
-    error: function () {
+    success: function(data) {
+      if (data.status !== 'ok') {
+        $('#chat-messages').append(
+          '<div class="message-error">' + escapeHtml(data.message || 'Failed to send.') + '</div>'
+        );
+        scrollToBottom();
+      }
+    },
+    // ─────────────────────────────────────────────────────────
+    error: function (xhr) {
+      var msg = 'Could not send that message. Please try again.';
+      if (xhr.responseJSON && xhr.responseJSON.message) {
+        msg = xhr.responseJSON.message;
+      }
       $('#chat-messages').append(
-        '<div class="message-error">Could not send that message. Please try again.</div>'
+        '<div class="message-error">' + escapeHtml(msg) + '</div>'
       );
       scrollToBottom();
     }

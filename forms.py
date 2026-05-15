@@ -7,26 +7,25 @@ class LoginForm(FlaskForm):
     identifier = StringField(
         'Email or Nickname',
         validators=[
-            DataRequired(message='Email or nickname is required.')
+            DataRequired(message='Email or nickname is required.'),
+            Length(max=150, message='Input is too long.')
         ]
     )
 
     password = PasswordField(
         'Password',
         validators=[
-            DataRequired(message='Password is required.')
+            DataRequired(message='Password is required.'),
+            Length(max=128, message='Password is too long.')
         ]
     )
 
 
 class SignupForm(FlaskForm):
-    name = StringField(
-        'Full Name',
-        validators=[
-            DataRequired(message='Full name is required.'),
-            Length(max=100)
-        ]
-    )
+    name = StringField('Name', validators=[
+    DataRequired(),
+    Length(max=100, message='Name must be 100 characters or fewer.')
+])
 
     nickname = StringField(
         'Nickname',
@@ -41,7 +40,7 @@ class SignupForm(FlaskForm):
         validators=[
             DataRequired(message='Email is required.'),
             Email(message='Please enter a valid email address.'),
-            Length(max=150)
+            Length(max=150,message='Email must be 150 characters or fewer.')
         ]
     )
 
@@ -58,12 +57,17 @@ class SignupForm(FlaskForm):
     )
 
     confirm_password = PasswordField(
-        'Confirm Password',
-        validators=[
-            DataRequired(message='Please confirm your password.'),
-            EqualTo('password', message='Passwords do not match.')
-        ]
-    )
+    'Confirm Password',
+    validators=[
+        DataRequired(message='Please confirm your password.'),
+        Length(min=8, message='Confirm password must be at least 8 characters long.'),
+        Regexp(
+            r'^(?=.*[A-Za-z])(?=.*\d).+$',
+            message='Confirm password must include at least one letter and one number.'
+        ),
+        EqualTo('password', message='Passwords do not match.')
+    ]
+)
 
     course = StringField(
         'Course / Major',
@@ -77,6 +81,17 @@ class SignupForm(FlaskForm):
         'Bio',
         validators=[
             Optional()
+        ]
+    )
+
+class ChangeNameForm(FlaskForm):
+    name = StringField(
+        'New Full Name',
+        validators=[
+            DataRequired(message='Full name is required.'),
+            Length(min=2, max=100, message='Name must be between 2 and 100 characters.'),
+            Regexp(r'^[A-Za-z\s\-]+$',
+                   message='Name can only contain letters, spaces and hyphens.')
         ]
     )
 

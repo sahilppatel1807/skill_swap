@@ -61,6 +61,13 @@ with app.app_context():
 
     # Ensure notification columns exist in the `requests` table (no migrations here).
     request_columns = [column['name'] for column in inspector.get_columns('requests')]
+    if 'last_login' not in user_columns:
+        db.session.execute(text('ALTER TABLE users ADD COLUMN last_login DATETIME'))
+        db.session.commit()
+    skills_columns = [column['name'] for column in inspector.get_columns('skills')]
+    if 'updated_at' not in skills_columns:
+        db.session.execute(text('ALTER TABLE skills ADD COLUMN updated_at DATETIME'))
+        db.session.commit()
     if 'to_user_seen' not in request_columns:
         db.session.execute(text('ALTER TABLE requests ADD COLUMN to_user_seen INTEGER NOT NULL DEFAULT 0'))
         db.session.commit()

@@ -18,7 +18,12 @@
     <div class="auth-error">{{ error }}</div>
     {% endif %}
 
+<<<<<<< Updated upstream
     <form method="POST" action="{{ url_for('signup') }}">
+=======
+    <form method="POST" action="{{ url_for('auth.signup') }}"
+      onsubmit="document.querySelector('.auth-error') && document.querySelector('.auth-error').remove()">
+>>>>>>> Stashed changes
       {{ form.hidden_tag() }}
 
       <div class="form-group">

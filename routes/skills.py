@@ -20,10 +20,8 @@ def skills():
         query = query.filter(db.or_(Skill.name.ilike(like), Skill.description.ilike(like)))
 
     skills_list = query.order_by(Skill.created_at.desc()).all()
-    pending_requests = Request.query.filter_by(
-        from_user_id=current_user.id, status='pending'
-    ).all()
-    pending_skill_ids = [req.skill_id for req in pending_requests]
+    user_requests = Request.query.filter_by(from_user_id=current_user.id).all()
+    request_map = {req.skill_id: req.status for req in user_requests}
     categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
     if not categories:
         categories = ['Programming', 'Design', 'Music', 'Communication']
@@ -33,7 +31,7 @@ def skills():
                            categories=categories,
                            current_category=category,
                            current_search=search,
-                           pending_skill_ids=pending_skill_ids)
+                           request_map=request_map)
 
 
 @skills_bp.route('/skills/new', methods=['POST'])

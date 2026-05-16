@@ -162,8 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     },
                     body: JSON.stringify({ seen: true })
                 }).then(function () {
-                    const dot = document.querySelector('.nav-request-dot');
-                    if (dot) dot.remove();
+                    document.querySelectorAll('.drawer-badge').forEach(function (b) { b.remove(); });
                 }).catch(function () {
                     // Non-blocking: worst case dot clears on next navigation.
                 });

@@ -50,8 +50,11 @@
         </a>
 
         <a href="{{ url_for('requests.requests_page') }}"
-           class="nav-link px-3 py-2 rounded {% if request.endpoint == 'requests.requests_page' %}active-link{% endif %}">
+           class="nav-link px-3 py-2 rounded d-flex align-items-center gap-1 {% if request.endpoint == 'requests.requests_page' %}active-link{% endif %}">
           Requests
+          {% if nav_requests_unseen_count > 0 %}
+          <span class="drawer-badge">{{ nav_requests_unseen_count }}</span>
+          {% endif %}
         </a>
 
         <a href="{{ url_for('chat.chat') }}"
@@ -82,7 +85,7 @@
 
             <li>
               <a class="dropdown-item" href="{{ url_for('auth.change_name') }}">
-                Change Nickname
+                Change Full Name
               </a>
             </li>
 

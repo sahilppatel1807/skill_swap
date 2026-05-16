@@ -49,27 +49,6 @@ def request_skill():
     return jsonify({'status': 'ok'})
 
 
-@requests_bp.route('/requests/send/<int:skill_id>', methods=['POST'])
-@login_required
-def send_request(skill_id):
-    skill = Skill.query.get_or_404(skill_id)
-    if skill.user_id == current_user.id:
-        return jsonify({'status': 'error', 'message': 'Cannot request your own skill'}), 400
-    existing = Request.query.filter_by(skill_id=skill_id, from_user_id=current_user.id).first()
-    if existing:
-        return jsonify({'status': 'error', 'message': 'Already requested'}), 400
-    req = Request(
-        skill_id=skill_id,
-        from_user_id=current_user.id,
-        to_user_id=skill.user_id,
-        to_user_seen=False,
-        from_user_seen=True,
-    )
-    db.session.add(req)
-    db.session.commit()
-    return jsonify({'status': 'ok'})
-
-
 @requests_bp.route('/requests/accept/<int:request_id>', methods=['POST'])
 @login_required
 def accept_request(request_id):

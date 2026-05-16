@@ -22,24 +22,18 @@ def skills():
         )
 
     skills_list = query.order_by(Skill.created_at.desc()).all()
-
-    my_requests = Request.query.filter_by(
-        from_user_id=current_user.id
-    ).all()
-
-    request_map = {r.skill_id: r.status for r in my_requests}
-
+    user_requests = Request.query.filter_by(from_user_id=current_user.id).all()
+    request_map = {req.skill_id: req.status for req in user_requests}
     categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
     if not categories:
         categories = ["Programming", "Design", "Music", "Communication"]
 
     return render_template('skills.html',
-        skills            = skills_list,
-        categories        = categories,
-        current_category  = category,
-        current_search    = search,
-        request_map       = request_map
-    )
+                           skills=skills_list,
+                           categories=categories,
+                           current_category=category,
+                           current_search=search,
+                           request_map=request_map)
 
 
 @skills_bp.route('/skills/new', methods=['POST'])

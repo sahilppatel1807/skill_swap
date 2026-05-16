@@ -1,7 +1,10 @@
 flask
 flask-sqlalchemy
 flask-login
-flask-WTF
+flask-wtf
 flask-migrate
+flask-limiter
 werkzeug
-email_validator
+email-validator
+beautifulsoup4
+selenium

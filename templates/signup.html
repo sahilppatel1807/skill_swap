@@ -19,7 +19,7 @@
     {% endif %}
 
     <form method="POST" action="{{ url_for('auth.signup') }}"
-      onsubmit="document.querySelector('.auth-error') && document.querySelector('.auth-error').remove()">
+      onsubmit="var e=document.querySelector('.auth-error');if(e)e.remove()">
       {{ form.hidden_tag() }}
 
       <div class="form-group">

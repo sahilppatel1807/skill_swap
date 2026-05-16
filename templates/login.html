@@ -17,8 +17,7 @@
     <div class="auth-error">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('auth.login') }}"
-      onsubmit="document.querySelector('.auth-error') && document.querySelector('.auth-error').remove()">
+    <form method="POST" action="{{ url_for('auth.login') }}" id="loginForm">
       {{ form.hidden_tag() }}
 
       <div class="form-group">

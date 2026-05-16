@@ -1,92 +1,270 @@
 import unittest
+import json
 from config import TestConfig
 from __init__ import create_app, db
-from models import User, Skill, make_avatar_initials, normalize_avatar_initials
+from models import User, Skill, Request, Message, normalize_avatar_initials
 
 
-class UserModelTests(unittest.TestCase):
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def make_user(name='Alice', email='alice@test.com', nickname='alice', password='Pass1234'):
+    u = User(name=name, email=email, nickname=nickname,
+             avatar_initials=normalize_avatar_initials(nickname, name))
+    u.set_password(password)
+    db.session.add(u)
+    db.session.commit()
+    return u
+
+def make_skill(user_id, name='Python', category='Programming'):
+    s = Skill(user_id=user_id, name=name, category=category)
+    db.session.add(s)
+    db.session.commit()
+    return s
+
+
+# ── Base ──────────────────────────────────────────────────────────────────────
+
+class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         self.app = create_app(TestConfig)
-        self.app_context = self.app.app_context()
-        self.app_context.push()
+        self.app.config['WTF_CSRF_ENABLED'] = False
+        self.app.config['RATELIMIT_ENABLED'] = False
+        self.ctx = self.app.app_context()
+        self.ctx.push()
         db.create_all()
+        self.client = self.app.test_client()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
-        self.app_context.pop()
+        self.ctx.pop()
 
-    def test_password_hashing(self):
-        user = User(name='Test User', email='test@test.com', nickname='testuser')
-        user.set_password('password123')
-        self.assertTrue(user.check_password('password123'))
+    def login(self, identifier='alice@test.com', password='Pass1234'):
+        return self.client.post('/login', data={
+            'identifier': identifier, 'password': password
+        }, follow_redirects=True)
 
-    def test_wrong_password_rejected(self):
-        user = User(name='Test User', email='test@test.com', nickname='testuser')
-        user.set_password('password123')
-        self.assertFalse(user.check_password('wrongpassword'))
+    def logout(self):
+        self.client.get('/logout', follow_redirects=True)
 
-    def test_user_saved_to_db(self):
-        user = User(name='Alice', email='alice@test.com', nickname='alice')
-        user.set_password('pass1234')
-        db.session.add(user)
-        db.session.commit()
-        fetched = User.query.filter_by(email='alice@test.com').first()
-        self.assertIsNotNone(fetched)
-        self.assertEqual(fetched.name, 'Alice')
 
+# ═════════════════════════════════════════════════════════════════════════════
+# 1 — REGISTRATION
+# ═════════════════════════════════════════════════════════════════════════════
+
+class RegistrationTests(BaseTestCase):
+
+    # TC1 — valid signup saves user and redirects
+    def test_valid_signup(self):
+        self.client.post('/signup', data={
+            'name': 'Alice Smith', 'nickname': 'alice',
+            'email': 'alice@test.com',
+            'password': 'Pass1234', 'confirm_password': 'Pass1234',
+        })
+        self.assertIsNotNone(User.query.filter_by(email='alice@test.com').first())
+
+    # TC7 — mismatched passwords rejected
+    def test_password_mismatch_rejected(self):
+        self.client.post('/signup', data={
+            'name': 'Alice', 'nickname': 'alice', 'email': 'alice@test.com',
+            'password': 'Pass1234', 'confirm_password': 'Pass9999',
+        })
+        self.assertIsNone(User.query.filter_by(email='alice@test.com').first())
+
+    # TC8 — duplicate email rejected
     def test_duplicate_email_rejected(self):
-        from sqlalchemy.exc import IntegrityError
-        user1 = User(name='Alice', email='same@test.com', nickname='alice1')
-        user1.set_password('pass1234')
-        db.session.add(user1)
+        make_user()
+        rv = self.client.post('/signup', data={
+            'name': 'Alice2', 'nickname': 'alice2', 'email': 'alice@test.com',
+            'password': 'Pass1234', 'confirm_password': 'Pass1234',
+        })
+        self.assertIn(b'already exists', rv.data)
+
+    # TC9 — duplicate nickname rejected
+    def test_duplicate_nickname_rejected(self):
+        make_user()
+        rv = self.client.post('/signup', data={
+            'name': 'Alice2', 'nickname': 'alice', 'email': 'other@test.com',
+            'password': 'Pass1234', 'confirm_password': 'Pass1234',
+        })
+        self.assertIn(b'already taken', rv.data)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 2 — LOGIN
+# ═════════════════════════════════════════════════════════════════════════════
+
+class LoginTests(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        make_user()
+
+    # TC15/16 — login with email and nickname both work
+    def test_login_with_email(self):
+        rv = self.login('alice@test.com', 'Pass1234')
+        self.assertNotIn(b'Invalid', rv.data)
+
+    def test_login_with_nickname(self):
+        rv = self.login('alice', 'Pass1234')
+        self.assertNotIn(b'Invalid', rv.data)
+
+    # TC18 — wrong password rejected
+    def test_wrong_password_rejected(self):
+        rv = self.login('alice@test.com', 'WrongPass1')
+        self.assertIn(b'Invalid', rv.data)
+
+    # TC17 — session cleared after logout
+    def test_logout_clears_session(self):
+        self.login()
+        self.logout()
+        rv = self.client.get('/skills', follow_redirects=False)
+        self.assertEqual(rv.status_code, 302)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 3 — SKILLS
+# ═════════════════════════════════════════════════════════════════════════════
+
+class SkillsTests(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.user = make_user()
+        self.login()
+
+    # Skill TC1 — add skill successfully
+    def test_add_skill(self):
+        self.client.post('/skills/new', data={
+            'name': 'Django', 'category': 'Programming'
+        }, follow_redirects=True)
+        self.assertIsNotNone(Skill.query.filter_by(name='Django').first())
+
+    # Skill TC2 — empty name rejected
+    def test_empty_skill_name_rejected(self):
+        self.client.post('/skills/new', data={
+            'name': '', 'category': 'Programming'
+        }, follow_redirects=True)
+        self.assertEqual(Skill.query.count(), 0)
+
+    # Skill TC6 — unauthenticated access redirects
+    def test_unauthenticated_redirects(self):
+        self.logout()
+        rv = self.client.get('/skills', follow_redirects=False)
+        self.assertEqual(rv.status_code, 302)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 4 — REQUESTS
+# ═════════════════════════════════════════════════════════════════════════════
+
+class RequestsTests(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.alice = make_user()
+        self.bob   = make_user(name='Bob', email='bob@test.com',
+                               nickname='bob', password='Pass5678')
+        self.skill = make_skill(user_id=self.bob.id)
+
+    def login_as(self, email, password):
+        self.client.post('/login', data={
+            'identifier': email, 'password': password
+        }, follow_redirects=True)
+
+    # TC7 — send request creates pending entry
+    def test_send_request(self):
+        self.login_as('alice@test.com', 'Pass1234')
+        self.client.post(f'/requests/send/{self.skill.id}',
+                         content_type='application/json')
+        req = Request.query.filter_by(from_user_id=self.alice.id).first()
+        self.assertIsNotNone(req)
+        self.assertEqual(req.status, 'pending')
+
+    # TC8 — cannot request own skill
+    def test_cannot_request_own_skill(self):
+        self.login_as('bob@test.com', 'Pass5678')
+        rv = self.client.post(f'/requests/send/{self.skill.id}',
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 400)
+
+    # TC9 — duplicate request rejected
+    def test_duplicate_request_rejected(self):
+        self.login_as('alice@test.com', 'Pass1234')
+        self.client.post(f'/requests/send/{self.skill.id}',
+                         content_type='application/json')
+        rv = self.client.post(f'/requests/send/{self.skill.id}',
+                              content_type='application/json')
+        self.assertEqual(rv.status_code, 400)
+
+    # TC10 — accept request changes status
+    def test_accept_request(self):
+        self.login_as('alice@test.com', 'Pass1234')
+        self.client.post(f'/requests/send/{self.skill.id}',
+                         content_type='application/json')
+        req = Request.query.filter_by(from_user_id=self.alice.id).first()
+        self.client.get('/logout', follow_redirects=True)
+
+        self.login_as('bob@test.com', 'Pass5678')
+        self.client.post(f'/requests/accept/{req.id}',
+                         content_type='application/json')
+        db.session.refresh(req)
+        self.assertEqual(req.status, 'accepted')
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 5 — CHAT
+# ═════════════════════════════════════════════════════════════════════════════
+
+class ChatTests(BaseTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.alice = make_user()
+        self.bob   = make_user(name='Bob', email='bob@test.com',
+                               nickname='bob', password='Pass5678')
+        skill = make_skill(user_id=self.bob.id)
+        conn = Request(skill_id=skill.id, from_user_id=self.alice.id,
+                       to_user_id=self.bob.id, status='accepted')
+        db.session.add(conn)
         db.session.commit()
-        user2 = User(name='Bob', email='same@test.com', nickname='bob1')
-        user2.set_password('pass5678')
-        db.session.add(user2)
-        with self.assertRaises(IntegrityError):
-            db.session.commit()
+        self.client.post('/login', data={
+            'identifier': 'alice@test.com', 'password': 'Pass1234'
+        }, follow_redirects=True)
 
-    def test_skill_linked_to_user(self):
-        user = User(name='Bob', email='bob@test.com', nickname='bob')
-        user.set_password('pass1234')
-        db.session.add(user)
+    # TC13 — send message successfully
+    def test_send_message(self):
+        rv = self.client.post('/chat/send',
+            data=json.dumps({'user_id': self.bob.id, 'message': 'Hello!'}),
+            content_type='application/json')
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(Message.query.count(), 1)
+
+    # TC14 — empty message rejected
+    def test_empty_message_rejected(self):
+        rv = self.client.post('/chat/send',
+            data=json.dumps({'user_id': self.bob.id, 'message': '   '}),
+            content_type='application/json')
+        self.assertEqual(rv.status_code, 400)
+        self.assertEqual(Message.query.count(), 0)
+
+    # TC17 — no connection → 403
+    def test_no_connection_rejected(self):
+        charlie = make_user(name='Charlie', email='charlie@test.com',
+                            nickname='charlie', password='Pass9999')
+        rv = self.client.get(f'/chat/messages/{charlie.id}')
+        self.assertEqual(rv.status_code, 403)
+
+    # TC16 — message history loads correctly
+    def test_message_history(self):
+        db.session.add(Message(sender_id=self.alice.id,
+                               receiver_id=self.bob.id, body='Hi Bob!'))
         db.session.commit()
-        skill = Skill(user_id=user.id, name='Python', category='Programming', level='Intermediate')
-        db.session.add(skill)
-        db.session.commit()
-        self.assertEqual(len(user.skills), 1)
-        self.assertEqual(user.skills[0].name, 'Python')
-
-    def test_multiple_skills_per_user(self):
-        user = User(name='Charlie', email='charlie@test.com', nickname='charlie')
-        user.set_password('pass1234')
-        db.session.add(user)
-        db.session.commit()
-        skill1 = Skill(user_id=user.id, name='JavaScript', category='Programming', level='Beginner')
-        skill2 = Skill(user_id=user.id, name='Flask', category='Web', level='Intermediate')
-        db.session.add_all([skill1, skill2])
-        db.session.commit()
-        self.assertEqual(len(user.skills), 2)
-
-    def test_avatar_initials_two_names(self):
-        self.assertEqual(make_avatar_initials('John Doe'), 'JD')
-
-    def test_avatar_initials_single_name(self):
-        result = make_avatar_initials('Alice')
-        self.assertEqual(result, 'AL')
-
-    def test_avatar_initials_empty(self):
-        self.assertEqual(make_avatar_initials(''), '??')
-
-    def test_normalize_avatar_initials(self):
-        self.assertEqual(normalize_avatar_initials('jd', ''), 'JD')
-
-    def test_user_repr(self):
-        user = User(name='Test', email='repr@test.com', nickname='repr')
-        self.assertEqual(repr(user), '<User repr@test.com>')
+        rv = self.client.get(f'/chat/messages/{self.bob.id}')
+        data = json.loads(rv.data)
+        self.assertEqual(data['messages'][0]['text'], 'Hi Bob!')
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

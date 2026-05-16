@@ -9,31 +9,37 @@ skills_bp = Blueprint('skills', __name__)
 @skills_bp.route('/skills')
 @login_required
 def skills():
-    query = Skill.query
+    query    = Skill.query
     category = request.args.get('category', '').strip()
-    search = request.args.get('search', '').strip()
+    search   = request.args.get('search', '').strip()
 
     if category:
         query = query.filter_by(category=category)
     if search:
-        like = f'%{search}%'
-        query = query.filter(db.or_(Skill.name.ilike(like), Skill.description.ilike(like)))
+        like  = f'%{search}%'
+        query = query.filter(
+            db.or_(Skill.name.ilike(like), Skill.description.ilike(like))
+        )
 
     skills_list = query.order_by(Skill.created_at.desc()).all()
-    pending_requests = Request.query.filter_by(
-        from_user_id=current_user.id, status='pending'
+
+    my_requests = Request.query.filter_by(
+        from_user_id=current_user.id
     ).all()
-    pending_skill_ids = [req.skill_id for req in pending_requests]
+
+    request_map = {r.skill_id: r.status for r in my_requests}
+
     categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
     if not categories:
-        categories = ['Programming', 'Design', 'Music', 'Communication']
+        categories = ["Programming", "Design", "Music", "Communication"]
 
     return render_template('skills.html',
-                           skills=skills_list,
-                           categories=categories,
-                           current_category=category,
-                           current_search=search,
-                           pending_skill_ids=pending_skill_ids)
+        skills            = skills_list,
+        categories        = categories,
+        current_category  = category,
+        current_search    = search,
+        request_map       = request_map
+    )
 
 
 @skills_bp.route('/skills/new', methods=['POST'])

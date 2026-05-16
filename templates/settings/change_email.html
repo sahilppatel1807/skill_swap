@@ -28,11 +28,11 @@
       {{ form.hidden_tag() }}
       <div class="form-group">
         <label class="form-label">New Email</label>
-        {{ form.email(class="auth-input", placeholder="New email address") }}
+        {{ form.email(class="auth-input", placeholder="New email address", autocomplete="off") }}
       </div>
       <div class="form-group">
         <label class="form-label">Confirm Password</label>
-        {{ form.password(class="auth-input", placeholder="Enter your password") }}
+        {{ form.password(class="auth-input", placeholder="Enter your password", autocomplete="off") }}
       </div>
       <button type="submit" class="auth-btn">Update Email</button>
     </form>
@@ -42,4 +42,16 @@
     </p>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      document.querySelectorAll('input').forEach(function (input) {
+        input.value = '';
+      });
+    }, 200);
+  });
+</script>
 {% endblock %}

@@ -26,11 +26,11 @@ def profile():
 @profile_bp.route('/profile/edit', methods=['POST'])
 @login_required
 def edit_profile():
-    current_user.name = request.form.get('name', current_user.name).strip()
+    current_user.nickname = request.form.get('nickname', current_user.nickname).strip()
     current_user.course = request.form.get('course', current_user.course or '').strip()
     current_user.bio = request.form.get('bio', current_user.bio or '').strip()
     current_user.avatar_initials = normalize_avatar_initials(
-        request.form.get('avatar_initials', ''), current_user.name
+        request.form.get('avatar_initials', ''), current_user.nickname
     )
     db.session.commit()
     flash('Profile updated!', 'success')
@@ -53,16 +53,24 @@ def add_skill():
         flash(message, 'error')
         return redirect(url_for('profile.profile'))
 
+    existing = Skill.query.filter_by(
+        user_id=current_user.id,
+        name=name,
+        level=level
+    ).first()
+
+    if existing:
+        message = 'You already have a skill with this name and level.'
+        if request.is_json:
+            return jsonify({'status': 'error', 'message': message}), 400
+        flash(message, 'error')
+        return redirect(url_for('profile.profile'))
+    # ─────────────────────────────────────────────────────────
+
     skill = Skill(name=name, category=category, level=level,
                   description=description, user_id=current_user.id)
     db.session.add(skill)
     db.session.commit()
-
-    if not request.is_json:
-        flash('Skill added!', 'success')
-        return redirect(url_for('profile.profile'))
-    return jsonify({'status': 'ok', 'id': skill.id})
-
 
 @profile_bp.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
 @login_required

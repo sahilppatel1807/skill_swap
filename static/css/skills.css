@@ -88,7 +88,15 @@
   overflow: hidden;
 }
 
-/* ── Category Badge ─────────────────────────────────────────── */
+/* ── Card Header (category + level) ─────────────────────────── */
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
 .skill-badge {
   display: inline-block;
   background: #fef3e2;
@@ -97,8 +105,31 @@
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 99px;
-  margin-bottom: 10px;
-  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+.skill-level-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.skill-level-badge.level-beginner {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.skill-level-badge.level-intermediate {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.skill-level-badge.level-expert {
+  background: #f5f3ff;
+  color: #5b21b6;
 }
 
 /* ── Card Content ───────────────────────────────────────────── */

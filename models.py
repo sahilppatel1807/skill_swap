@@ -49,6 +49,10 @@ class User(UserMixin, db.Model):
     def avatar(self):
         return normalize_avatar_initials(self.avatar_initials, self.name)
 
+    @property
+    def display_name(self):
+        return (self.nickname or self.name or '').strip() or 'Unknown'
+
     def set_password(self, raw_password):
         self.password = generate_password_hash(raw_password, method="pbkdf2:sha256")
 

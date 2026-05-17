@@ -26,11 +26,16 @@ def profile():
 @profile_bp.route('/profile/edit', methods=['POST'])
 @login_required
 def edit_profile():
-    current_user.nickname = request.form.get('nickname', current_user.nickname).strip()
+    nickname = request.form.get('nickname', '').strip()
+    if not nickname:
+        flash('Nickname is required.', 'error')
+        return redirect(url_for('profile.profile'))
+
+    current_user.nickname = nickname
     current_user.course = request.form.get('course', current_user.course or '').strip()
     current_user.bio = request.form.get('bio', current_user.bio or '').strip()
     current_user.avatar_initials = normalize_avatar_initials(
-        request.form.get('avatar_initials', ''), current_user.nickname
+        request.form.get('avatar_initials', ''), nickname or current_user.name
     )
     db.session.commit()
     flash('Profile updated!', 'success')

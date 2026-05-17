@@ -54,7 +54,7 @@
         <span class="skill-badge">{{ skill.category }}</span>
         <h3 class="skill-name">{{ skill.name }}</h3>
         <p class="skill-desc">{{ skill.description }}</p>
-        <p class="skill-author">by {{ skill.owner.nickname }}</p>
+        <p class="skill-author">by {{ skill.owner.display_name }}</p>
 
         {% set status = request_map.get(skill.id) %}
         {% if skill.user_id == current_user.id %}

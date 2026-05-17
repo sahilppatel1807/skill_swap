@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4" style="max-width:480px">
+  <h4 class="mb-4">Change Nickname</h4>
+
+  {% with messages = get_flashed_messages(category_filter=["success"]) %}
+    {% if messages %}
+      <div class="alert alert-success">{{ messages[0] }}</div>
+    {% endif %}
+  {% endwith %}
+
+  {% if error %}
+    <div class="auth-error mb-3">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      <label class="form-label">New Nickname</label>
+      {{ form.nickname(class="form-control", placeholder="Enter new nickname", maxlength=80, required=True) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{{ url_for('profile.profile') }}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

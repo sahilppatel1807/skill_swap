@@ -127,6 +127,25 @@ def change_name():
         error = next(iter(form.errors.values()))[0]
     return render_template('settings/change_name.html', form=form, error=error, success=success)
 
+@auth_bp.route('/settings/change-nickname', methods=['GET', 'POST'])
+@login_required
+def change_nickname():
+    form = ChangeNicknameForm()
+    error = None
+    if form.validate_on_submit():
+        new_nickname = form.nickname.data.strip()
+        if new_nickname == current_user.nickname:
+            error = 'New nickname is the same as your current nickname.'
+        elif User.query.filter_by(nickname=new_nickname).first():
+            error = 'Nickname is already taken.'
+        else:
+            current_user.nickname = new_nickname
+            db.session.commit()
+            flash('Nickname updated successfully.', 'success')
+            return redirect(url_for('auth.change_nickname'))
+    elif request.method == 'POST':
+        error = next(iter(form.errors.values()))[0]
+    return render_template('settings/change_nickname.html', form=form, error=error)
 
 @auth_bp.route('/settings/change-email', methods=['GET', 'POST'])
 @login_required

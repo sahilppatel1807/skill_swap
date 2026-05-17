@@ -35,7 +35,7 @@ def edit_profile():
     current_user.course = request.form.get('course', current_user.course or '').strip()
     current_user.bio = request.form.get('bio', current_user.bio or '').strip()
     current_user.avatar_initials = normalize_avatar_initials(
-        request.form.get('avatar_initials', ''), current_user.nickname
+        request.form.get('avatar_initials', ''), new_nickname or current_user.name
     )
     db.session.commit()
     flash('Profile updated!', 'success')
@@ -76,6 +76,12 @@ def add_skill():
                   description=description, user_id=current_user.id)
     db.session.add(skill)
     db.session.commit()
+
+    if request.is_json:
+        return jsonify({'status': 'ok', 'skill': skill.to_dict()})
+    flash('Skill added!', 'success')
+    return redirect(url_for('profile.profile'))
+
 
 @profile_bp.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
 @login_required

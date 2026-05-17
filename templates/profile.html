@@ -63,11 +63,15 @@
       <div class="skill-card">
         <div class="skill-card-body">
           <div class="skill-card-top">
-            <div class="skill-left">
+            <div class="skill-main">
               <span class="skill-name">{{ skill.name }}</span>
               <span class="skill-badge">{{ skill.category }}</span>
             </div>
-            <div class="skill-actions">
+            <div class="skill-aside">
+              {% if skill.level %}
+              <span class="skill-level-badge level-{{ skill.level|lower }}">{{ skill.level }}</span>
+              {% endif %}
+              <div class="skill-actions">
 
               <!-- Edit button — opens pre-filled modal -->
               <button class="icon-btn edit-btn" title="Edit"
@@ -102,6 +106,7 @@
                 </button>
               </form>
 
+              </div>
             </div>
           </div>
           <p class="skill-desc">{{ skill.description }}</p>
@@ -199,7 +204,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label">Level</label>
-            <select id="skill-level" class="form-select" name="level">
+            <select id="skill-level" class="form-select" name="level" required>
               <option value="" selected disabled>Select a level</option>
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>

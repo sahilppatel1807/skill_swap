@@ -198,9 +198,9 @@
 }
 
 .badge-accepted {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1.5px solid #e2e8f0;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1.5px solid #6ee7b7;
 }
 
 .badge-pending {

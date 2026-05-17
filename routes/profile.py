@@ -77,6 +77,12 @@ def add_skill():
     db.session.add(skill)
     db.session.commit()
 
+    if request.is_json:
+        return jsonify({'status': 'ok', 'skill': skill.to_dict()})
+    flash('Skill added!', 'success')
+    return redirect(url_for('profile.profile'))
+
+
 @profile_bp.route('/profile/skills/edit/<int:skill_id>', methods=['POST'])
 @login_required
 def edit_skill(skill_id):

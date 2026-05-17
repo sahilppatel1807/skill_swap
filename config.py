@@ -1,7 +1,8 @@
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-default_database_path = "sqlite:///" + os.path.join(basedir, 'skillswap.db')
+instance_dir = os.path.join(basedir, 'instance')
+default_database_path = "sqlite:///" + os.path.join(instance_dir, 'skillswap.db')
 
 class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', default_database_path)

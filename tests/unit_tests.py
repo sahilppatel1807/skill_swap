@@ -98,8 +98,23 @@ class RegistrationTests(BaseTestCase):
             'password': 'Pass1234', 'confirm_password': 'Pass1234',
         })
         self.assertIn(b'already taken', rv.data)
+        # TC11 — weak password (no number) rejected
+    def test_weak_password_no_number_rejected(self):
+        rv = self.client.post('/signup', data={
+            'name': 'Alice Smith', 'nickname': 'alice',
+            'email': 'alice@uwa.edu.au',
+            'password': 'Password', 'confirm_password': 'Password',
+        })
+        self.assertIsNone(User.query.filter_by(email='alice@uwa.edu.au').first())
 
-
+    # TC10 — too-short password rejected
+    def test_short_password_rejected(self):
+        rv = self.client.post('/signup', data={
+            'name': 'Alice Smith', 'nickname': 'alice',
+            'email': 'alice@uwa.edu.au',
+            'password': 'Ab1', 'confirm_password': 'Ab1',
+        })
+        self.assertIsNone(User.query.filter_by(email='alice@uwa.edu.au').first())
 # ═════════════════════════════════════════════════════════════════════════════
 # 2 — LOGIN
 # ═════════════════════════════════════════════════════════════════════════════
@@ -130,7 +145,10 @@ class LoginTests(BaseTestCase):
         self.logout()
         rv = self.client.get('/skills', follow_redirects=False)
         self.assertEqual(rv.status_code, 302)
-
+    # TC19 — login email is case-insensitive
+    def test_login_email_case_insensitive(self):
+        rv = self.login('ALICE@TEST.COM', 'Pass1234')
+        self.assertNotIn(b'Invalid', rv.data)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # 3 — SKILLS
@@ -322,7 +340,17 @@ class ChatTests(BaseTestCase):
         rv = self.client.get(f'/chat/messages/{self.bob.id}')
         data = json.loads(rv.data)
         self.assertEqual(data['messages'][0]['text'], 'Hi Bob!')
+# ═════════════════════════════════════════════════════════════════════════════
+# 6 — HOME PAGE
+# ═════════════════════════════════════════════════════════════════════════════
 
+class HomePageTests(BaseTestCase):
+
+    # TC20 — home page accessible anonymously (no login required)
+    def test_home_page_anonymous_access(self):
+        rv = self.client.get('/')
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(b'SkillSwap', rv.data)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

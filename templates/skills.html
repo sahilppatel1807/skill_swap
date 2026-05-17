@@ -62,6 +62,9 @@
         <p class="skill-author">by {{ skill.owner.display_name }}</p>
 
         {% set status = request_map.get(skill.id) %}
+        {% if skill.user_id in connected_user_ids %}
+        {% set status = 'accepted' %}
+        {% endif %}
         {% if skill.user_id == current_user.id %}
         <button class="btn btn-secondary" disabled>Your Skill</button>
 

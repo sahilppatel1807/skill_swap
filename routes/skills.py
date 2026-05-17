@@ -24,6 +24,19 @@ def skills():
     skills_list = query.order_by(Skill.created_at.desc()).all()
     user_requests = Request.query.filter_by(from_user_id=current_user.id).all()
     request_map = {req.skill_id: req.status for req in user_requests}
+
+    connected_user_ids = set()
+    for req in Request.query.filter(
+        db.or_(
+            Request.from_user_id == current_user.id,
+            Request.to_user_id == current_user.id,
+        ),
+        Request.status == 'accepted',
+    ):
+        other_id = (
+            req.to_user_id if req.from_user_id == current_user.id else req.from_user_id
+        )
+        connected_user_ids.add(other_id)
     categories = [c[0] for c in db.session.query(Skill.category).distinct().all() if c[0]]
     if not categories:
         categories = ["Programming", "Design", "Music", "Communication"]
@@ -33,7 +46,8 @@ def skills():
                            categories=categories,
                            current_category=category,
                            current_search=search,
-                           request_map=request_map)
+                           request_map=request_map,
+                           connected_user_ids=connected_user_ids)
 
 
 @skills_bp.route('/skills/new', methods=['POST'])

@@ -59,24 +59,33 @@ class RegistrationTests(BaseTestCase):
     def test_valid_signup(self):
         self.client.post('/signup', data={
             'name': 'Alice Smith', 'nickname': 'alice',
+            'email': 'alice@uwa.edu.au',
+            'password': 'Pass1234', 'confirm_password': 'Pass1234',
+        })
+        self.assertIsNotNone(User.query.filter_by(email='alice@uwa.edu.au').first())
+
+    def test_non_student_email_rejected(self):
+        rv = self.client.post('/signup', data={
+            'name': 'Alice Smith', 'nickname': 'alice',
             'email': 'alice@test.com',
             'password': 'Pass1234', 'confirm_password': 'Pass1234',
         })
-        self.assertIsNotNone(User.query.filter_by(email='alice@test.com').first())
+        self.assertIsNone(User.query.filter_by(email='alice@test.com').first())
+        self.assertIn(b'.edu.au', rv.data)
 
     # TC7 — mismatched passwords rejected
     def test_password_mismatch_rejected(self):
         self.client.post('/signup', data={
-            'name': 'Alice', 'nickname': 'alice', 'email': 'alice@test.com',
+            'name': 'Alice', 'nickname': 'alice', 'email': 'alice@uwa.edu.au',
             'password': 'Pass1234', 'confirm_password': 'Pass9999',
         })
-        self.assertIsNone(User.query.filter_by(email='alice@test.com').first())
+        self.assertIsNone(User.query.filter_by(email='alice@uwa.edu.au').first())
 
     # TC8 — duplicate email rejected
     def test_duplicate_email_rejected(self):
-        make_user()
+        make_user(email='alice@uwa.edu.au')
         rv = self.client.post('/signup', data={
-            'name': 'Alice2', 'nickname': 'alice2', 'email': 'alice@test.com',
+            'name': 'Alice2', 'nickname': 'alice2', 'email': 'alice@uwa.edu.au',
             'password': 'Pass1234', 'confirm_password': 'Pass1234',
         })
         self.assertIn(b'already exists', rv.data)
@@ -85,7 +94,7 @@ class RegistrationTests(BaseTestCase):
     def test_duplicate_nickname_rejected(self):
         make_user()
         rv = self.client.post('/signup', data={
-            'name': 'Alice2', 'nickname': 'alice', 'email': 'other@test.com',
+            'name': 'Alice2', 'nickname': 'alice', 'email': 'other@curtin.edu.au',
             'password': 'Pass1234', 'confirm_password': 'Pass1234',
         })
         self.assertIn(b'already taken', rv.data)
@@ -176,8 +185,7 @@ class RequestsTests(BaseTestCase):
     # TC7 — send request creates pending entry
     def test_send_request(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
         req = Request.query.filter_by(from_user_id=self.alice.id).first()
         self.assertIsNotNone(req)
         self.assertEqual(req.status, 'pending')
@@ -185,24 +193,20 @@ class RequestsTests(BaseTestCase):
     # TC8 — cannot request own skill
     def test_cannot_request_own_skill(self):
         self.login_as('bob@test.com', 'Pass5678')
-        rv = self.client.post(f'/requests/send/{self.skill.id}',
-                              content_type='application/json')
+        rv = self.client.post('/request_skill', data={'skill_id': self.skill.id})
         self.assertEqual(rv.status_code, 400)
 
     # TC9 — duplicate request rejected
     def test_duplicate_request_rejected(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
-        rv = self.client.post(f'/requests/send/{self.skill.id}',
-                              content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
+        rv = self.client.post('/request_skill', data={'skill_id': self.skill.id})
         self.assertEqual(rv.status_code, 400)
 
     # TC10 — accept request changes status
     def test_accept_request(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
         req = Request.query.filter_by(from_user_id=self.alice.id).first()
         self.client.get('/logout', follow_redirects=True)
 
@@ -211,6 +215,60 @@ class RequestsTests(BaseTestCase):
                          content_type='application/json')
         db.session.refresh(req)
         self.assertEqual(req.status, 'accepted')
+
+    def test_accepting_one_skill_accepts_other_pending_from_same_user(self):
+        skill2 = make_skill(user_id=self.bob.id, name='React', category='Programming')
+        self.login_as('alice@test.com', 'Pass1234')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
+        self.client.post('/request_skill', data={'skill_id': skill2.id})
+        req1 = Request.query.filter_by(skill_id=self.skill.id).first()
+        req2 = Request.query.filter_by(skill_id=skill2.id).first()
+        self.client.get('/logout', follow_redirects=True)
+
+        self.login_as('bob@test.com', 'Pass5678')
+        self.client.post(f'/requests/accept/{req1.id}')
+        db.session.refresh(req1)
+        db.session.refresh(req2)
+        self.assertEqual(req1.status, 'accepted')
+        self.assertEqual(req2.status, 'accepted')
+
+    def test_connected_user_shows_accepted_on_all_skills(self):
+        skill2 = make_skill(user_id=self.bob.id, name='React', category='Programming')
+        req = Request(
+            skill_id=self.skill.id,
+            from_user_id=self.alice.id,
+            to_user_id=self.bob.id,
+            status='accepted',
+        )
+        pending = Request(
+            skill_id=skill2.id,
+            from_user_id=self.alice.id,
+            to_user_id=self.bob.id,
+            status='pending',
+        )
+        db.session.add_all([req, pending])
+        db.session.commit()
+
+        self.login_as('alice@test.com', 'Pass1234')
+        rv = self.client.get('/skills')
+        self.assertEqual(rv.status_code, 200)
+        self.assertIn(b'Accepted', rv.data)
+        self.assertNotIn(b'Requested', rv.data)
+
+    def test_cannot_request_another_skill_when_already_connected(self):
+        db.session.add(Request(
+            skill_id=self.skill.id,
+            from_user_id=self.alice.id,
+            to_user_id=self.bob.id,
+            status='accepted',
+        ))
+        db.session.commit()
+        skill2 = make_skill(user_id=self.bob.id, name='React', category='Programming')
+
+        self.login_as('alice@test.com', 'Pass1234')
+        rv = self.client.post('/request_skill', data={'skill_id': skill2.id})
+        self.assertEqual(rv.status_code, 400)
+        self.assertIn(b'Already connected', rv.data)
 
 
 # ═════════════════════════════════════════════════════════════════════════════

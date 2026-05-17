@@ -37,7 +37,10 @@
       <div class="form-group">
         <label class="form-label">Email</label>
         <input type="email" name="email" class="auth-input"
-               placeholder="jane@campus.edu" required>
+               placeholder="jane@campus.edu.au"
+               pattern="^[^@]+@[^@]+\.edu\.au$"
+               title="Please use your Australian student email address (must end with .edu.au)."
+               required>
       </div>
 
       <div class="form-group">

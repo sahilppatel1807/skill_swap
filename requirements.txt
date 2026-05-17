@@ -8,3 +8,4 @@ werkzeug
 email-validator
 beautifulsoup4
 selenium
+python-dotenv

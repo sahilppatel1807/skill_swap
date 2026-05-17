@@ -49,11 +49,11 @@ class SkillSwapE2ETests(unittest.TestCase):
         cls.driver.implicitly_wait(5)
 
         # ── Seed two accounts used across all tests ───────────────────────
-        cls._create_user('Alice', 'alice_e2e', 'alice@e2e.com', 'AlicePass1')
-        cls._create_user('Bob',   'bob_e2e',   'bob@e2e.com',   'BobPass1')
+        cls._create_user('Alice', 'alice_e2e', 'alice@e2e.edu.au', 'AlicePass1')
+        cls._create_user('Bob',   'bob_e2e',   'bob@e2e.edu.au',   'BobPass1')
 
         # Bob posts a skill so Alice can request it
-        cls._js_login('bob@e2e.com', 'BobPass1')
+        cls._js_login('bob@e2e.edu.au', 'BobPass1')
         cls.driver.execute_script("""
             var f = document.createElement('form');
             f.method = 'POST'; f.action = '/skills/new';
@@ -110,12 +110,12 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC1 — valid signup redirects to /login
     def test_01_valid_signup(self):
-        self._create_user('New User', 'newuser99', 'new@e2e.com', 'NewPass1')
+        self._create_user('New User', 'newuser99', 'new@e2e.edu.au', 'NewPass1')
         self.assertIn('login', self.driver.current_url)
 
     # TC8 — duplicate email shows error
     def test_02_duplicate_email_shows_error(self):
-        self._create_user('Alice2', 'alice_dup', 'alice@e2e.com', 'AlicePass1')
+        self._create_user('Alice2', 'alice_dup', 'alice@e2e.edu.au', 'AlicePass1')
         error = WebDriverWait(self.driver, 5).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'auth-error'))
         )
@@ -127,14 +127,14 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC15 — correct credentials redirect away from /login
     def test_03_login_valid_credentials(self):
-        self._login('alice@e2e.com', 'AlicePass1')
+        self._login('alice@e2e.edu.au', 'AlicePass1')
         self.assertNotIn('login', self.driver.current_url)
 
     # TC18 — wrong password shows error
     def test_04_login_invalid_credentials(self):
         self.driver.get(BASE + '/login')
         self.driver.execute_script("""
-            document.querySelector('[name=identifier]').value = 'alice@e2e.com';
+            document.querySelector('[name=identifier]').value = 'alice@e2e.edu.au';
             document.querySelector('[name=password]').value = 'WrongPass9';
             document.getElementById('loginForm').submit();
         """)
@@ -155,7 +155,7 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # Skill TC1 — posted skill appears in the browse grid
     def test_06_add_skill_appears_in_grid(self):
-        self._login('alice@e2e.com', 'AlicePass1')
+        self._login('alice@e2e.edu.au', 'AlicePass1')
         self.driver.execute_script("""
             var f = document.createElement('form');
             f.method = 'POST'; f.action = '/skills/new';
@@ -179,7 +179,7 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC7 — request button changes to "Requested" after clicking
     def test_07_send_request_updates_button(self):
-        self._login('alice@e2e.com', 'AlicePass1')
+        self._login('alice@e2e.edu.au', 'AlicePass1')
         self.driver.get(BASE + '/skills')
         WebDriverWait(self.driver, 5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '.skills-grid'))
@@ -208,7 +208,7 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC8 — own skill shows disabled "Your Skill" button
     def test_08_own_skill_button_disabled(self):
-        self._login('bob@e2e.com', 'BobPass1')
+        self._login('bob@e2e.edu.au', 'BobPass1')
         self.driver.get(BASE + '/skills')
         WebDriverWait(self.driver, 5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '.skills-grid'))
@@ -225,7 +225,7 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC10 — Bob accepts Alice's request, badge shows "Accepted"
     def test_09_accept_request_shows_badge(self):
-        self._login('bob@e2e.com', 'BobPass1')
+        self._login('bob@e2e.edu.au', 'BobPass1')
         self.driver.get(BASE + '/requests')
         WebDriverWait(self.driver, 5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '.btn-accept'))
@@ -244,7 +244,7 @@ class SkillSwapE2ETests(unittest.TestCase):
 
     # TC_C — chat page loads and accepted connection appears in sidebar
     def test_10_chat_page_shows_connection(self):
-        self._login('alice@e2e.com', 'AlicePass1')
+        self._login('alice@e2e.edu.au', 'AlicePass1')
         self.driver.get(BASE + '/chat')
 
         # Connection item should appear after Bob accepted Alice's request

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from __init__ import db
-from models import Skill, Request
+from models import Skill, Request, users_have_accepted_connection
 
 requests_bp = Blueprint('requests', __name__)
 
@@ -37,6 +37,8 @@ def request_skill():
     skill = Skill.query.get_or_404(skill_id)
     if skill.user_id == current_user.id:
         return jsonify({'status': 'error', 'message': 'Cannot request own skill'}), 400
+    if users_have_accepted_connection(current_user.id, skill.user_id):
+        return jsonify({'status': 'error', 'message': 'Already connected with this user'}), 400
     existing = Request.query.filter_by(
         skill_id=skill_id, from_user_id=current_user.id, status='pending'
     ).first()
@@ -60,6 +62,17 @@ def accept_request(request_id):
     req.status = 'accepted'
     req.to_user_seen = True
     req.from_user_seen = False
+
+    Request.query.filter(
+        Request.from_user_id == req.from_user_id,
+        Request.to_user_id == req.to_user_id,
+        Request.status == 'pending',
+        Request.id != req.id,
+    ).update(
+        {Request.status: 'accepted', Request.from_user_seen: False},
+        synchronize_session=False,
+    )
+
     db.session.commit()
     if request.is_json:
         return jsonify({'status': 'ok'})

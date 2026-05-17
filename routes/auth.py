@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from __init__ import db
 from models import User, normalize_avatar_initials
@@ -69,7 +69,11 @@ def login():
             user = User.query.filter_by(nickname=identifier).first()
 
         if user and user.check_password(password):
+            session.pop('_flashes', None)
             login_user(user)
+            next_page = request.args.get('next')
+            if next_page and next_page.startswith('/'):
+                return redirect(next_page)
             return redirect(url_for('skills.skills'))
 
         return render_template('login.html', form=form,

@@ -124,6 +124,19 @@ class Request(db.Model):
     )
 
 
+def users_have_accepted_connection(user_a_id, user_b_id):
+    """True if any skill request between the two users has been accepted."""
+    if user_a_id == user_b_id:
+        return False
+    return Request.query.filter(
+        Request.status == 'accepted',
+        db.or_(
+            db.and_(Request.from_user_id == user_a_id, Request.to_user_id == user_b_id),
+            db.and_(Request.from_user_id == user_b_id, Request.to_user_id == user_a_id),
+        ),
+    ).first() is not None
+
+
 # ── Message ───────────────────────────────────────────────────────
 class Message(db.Model):
     __tablename__ = 'messages'

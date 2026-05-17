@@ -1,6 +1,14 @@
+import re
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp, Optional
+
+STUDENT_EMAIL_MESSAGE = (
+    'Please use your Australian student email address (must end with .edu.au).'
+)
+# WTForms Regexp uses re.match (start of string), so the pattern must span the full email.
+STUDENT_EMAIL_REGEX = r'^[^@]+@[^@]+\.edu\.au$'
 
 
 class LoginForm(FlaskForm):
@@ -40,6 +48,7 @@ class SignupForm(FlaskForm):
         validators=[
             DataRequired(message='Email is required.'),
             Email(message='Please enter a valid email address.'),
+            Regexp(STUDENT_EMAIL_REGEX, flags=re.IGNORECASE, message=STUDENT_EMAIL_MESSAGE),
             Length(max=150,message='Email must be 150 characters or fewer.')
         ]
     )

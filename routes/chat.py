@@ -1,19 +1,13 @@
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 from __init__ import db
-from models import Request, Message
+from models import Request, Message, users_have_accepted_connection
 
 chat_bp = Blueprint('chat', __name__)
 
 
 def has_accepted_connection(user_id):
-    return Request.query.filter(
-        Request.status == 'accepted',
-        (
-            ((Request.from_user_id == current_user.id) & (Request.to_user_id == user_id)) |
-            ((Request.from_user_id == user_id) & (Request.to_user_id == current_user.id))
-        )
-    ).first() is not None
+    return users_have_accepted_connection(current_user.id, user_id)
 
 
 @chat_bp.route('/chat')

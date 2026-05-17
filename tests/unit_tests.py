@@ -176,8 +176,7 @@ class RequestsTests(BaseTestCase):
     # TC7 — send request creates pending entry
     def test_send_request(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
         req = Request.query.filter_by(from_user_id=self.alice.id).first()
         self.assertIsNotNone(req)
         self.assertEqual(req.status, 'pending')
@@ -185,24 +184,20 @@ class RequestsTests(BaseTestCase):
     # TC8 — cannot request own skill
     def test_cannot_request_own_skill(self):
         self.login_as('bob@test.com', 'Pass5678')
-        rv = self.client.post(f'/requests/send/{self.skill.id}',
-                              content_type='application/json')
+        rv = self.client.post('/request_skill', data={'skill_id': self.skill.id})
         self.assertEqual(rv.status_code, 400)
 
     # TC9 — duplicate request rejected
     def test_duplicate_request_rejected(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
-        rv = self.client.post(f'/requests/send/{self.skill.id}',
-                              content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
+        rv = self.client.post('/request_skill', data={'skill_id': self.skill.id})
         self.assertEqual(rv.status_code, 400)
 
     # TC10 — accept request changes status
     def test_accept_request(self):
         self.login_as('alice@test.com', 'Pass1234')
-        self.client.post(f'/requests/send/{self.skill.id}',
-                         content_type='application/json')
+        self.client.post('/request_skill', data={'skill_id': self.skill.id})
         req = Request.query.filter_by(from_user_id=self.alice.id).first()
         self.client.get('/logout', follow_redirects=True)
 

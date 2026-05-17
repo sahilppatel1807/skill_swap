@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_required, current_user
 from __init__ import db
 from datetime import datetime
-from models import Skill, normalize_avatar_initials
+from models import Skill, User, normalize_avatar_initials
 
 profile_bp = Blueprint('profile', __name__)
 
@@ -26,7 +26,12 @@ def profile():
 @profile_bp.route('/profile/edit', methods=['POST'])
 @login_required
 def edit_profile():
-    current_user.nickname = request.form.get('nickname', current_user.nickname).strip()
+    new_nickname = request.form.get('nickname', current_user.nickname).strip()
+    if new_nickname != current_user.nickname:
+        if User.query.filter_by(nickname=new_nickname).first():
+            flash('Nickname is already taken.', 'error')
+            return redirect(url_for('profile.profile'))
+    current_user.nickname = new_nickname
     current_user.course = request.form.get('course', current_user.course or '').strip()
     current_user.bio = request.form.get('bio', current_user.bio or '').strip()
     current_user.avatar_initials = normalize_avatar_initials(

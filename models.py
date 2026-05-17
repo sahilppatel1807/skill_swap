@@ -76,7 +76,11 @@ class Skill(db.Model):
     created_at  = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at  = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    owner    = db.relationship('User', backref='skills', lazy=True)
+    owner = db.relationship(
+        'User',
+        backref=db.backref('skills', cascade='all, delete-orphan'),
+        lazy=True,
+    )
     requests = db.relationship('Request', backref='skill', lazy=True,
                                cascade='all, delete-orphan')
 
@@ -108,10 +112,16 @@ class Request(db.Model):
     to_user_seen   = db.Column(db.Boolean, default=False, nullable=False)
     from_user_seen = db.Column(db.Boolean, default=True, nullable=False)
 
-    from_user = db.relationship('User', foreign_keys=[from_user_id],
-                                backref='sent_requests')
-    to_user   = db.relationship('User', foreign_keys=[to_user_id],
-                                backref='received_requests')
+    from_user = db.relationship(
+        'User',
+        foreign_keys=[from_user_id],
+        backref=db.backref('sent_requests', cascade='all, delete-orphan'),
+    )
+    to_user = db.relationship(
+        'User',
+        foreign_keys=[to_user_id],
+        backref=db.backref('received_requests', cascade='all, delete-orphan'),
+    )
 
 
 # ── Message ───────────────────────────────────────────────────────
@@ -124,7 +134,13 @@ class Message(db.Model):
     body        = db.Column(db.Text, nullable=False)
     timestamp   = db.Column(db.DateTime, default=datetime.utcnow)
 
-    sender   = db.relationship('User', foreign_keys=[sender_id],
-                               backref='sent_messages')
-    receiver = db.relationship('User', foreign_keys=[receiver_id],
-                               backref='received_messages')
+    sender = db.relationship(
+        'User',
+        foreign_keys=[sender_id],
+        backref=db.backref('sent_messages', cascade='all, delete-orphan'),
+    )
+    receiver = db.relationship(
+        'User',
+        foreign_keys=[receiver_id],
+        backref=db.backref('received_messages', cascade='all, delete-orphan'),
+    )

@@ -29,7 +29,7 @@
       <div class="profile-top">
         <div class="profile-avatar">{{ current_user.avatar }}</div>
         <div class="profile-info">
-          <h2 class="profile-name">{{ current_user.nickname }}</h2>
+          <h2 class="profile-name">{{ current_user.display_name }}</h2>
           <p class="profile-course">{{ current_user.course or 'Course not added yet' }}</p>
         </div>
       </div>
@@ -133,7 +133,7 @@
           <div class="mb-3">
             <label class="form-label">Nickname</label>
             <input id="profile-name-input" type="text" class="form-control" name="nickname"
-                   value="{{ current_user.nickname }}" required maxlength="100">
+                   value="{{ current_user.nickname or '' }}" required maxlength="100">
           </div>
           <div class="mb-3">
             <label class="form-label">Course / Major</label>

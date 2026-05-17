@@ -139,6 +139,7 @@ class ChangeEmailForm(FlaskForm):
         validators=[
             DataRequired(message='Email is required.'),
             Email(message='Please enter a valid email address.'),
+            Regexp(STUDENT_EMAIL_REGEX, flags=re.IGNORECASE, message=STUDENT_EMAIL_MESSAGE),
             Length(max=150)
         ]
     )

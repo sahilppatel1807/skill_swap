@@ -1,0 +1,189 @@
+<svg width="100%" viewBox="0 0 724 1080" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>SkillSwap Database Class Diagram</title>
+  <desc>Class diagram showing User, Skill, Request, and Message database models with their fields, methods, and relationships for the SkillSwap web application.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#aaa7a1" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      text {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .bg {
+        fill: #20201f;
+      }
+
+      .card {
+        fill: #40368d;
+        stroke: #9d96ea;
+        stroke-width: 1.2;
+      }
+
+      .card-header {
+        fill: #423892;
+      }
+
+      .divider {
+        stroke: #5146a2;
+        stroke-width: 1;
+      }
+
+      .title {
+        fill: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .field {
+        fill: #f0eefc;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .rel-line {
+        fill: none;
+        stroke: #aaa7a1;
+        stroke-width: 1;
+        marker-end: url(#arrow);
+      }
+
+      .rel-label-bg {
+        fill: #333331;
+        opacity: 0.92;
+      }
+
+      .rel-label {
+        fill: #c7c3ba;
+        font-size: 11px;
+      }
+
+      .cardinality {
+        fill: #c7c3ba;
+        font-size: 11px;
+      }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="724" height="1080"/>
+
+  <!-- Relationship lines -->
+  <path class="rel-line" d="M360 270 C300 310, 230 360, 178 405 C150 430, 132 444, 112 456"/>
+  <path class="rel-line" d="M377 385 C340 420, 332 455, 345 494"/>
+  <path class="rel-line" d="M446 385 C438 423, 428 455, 419 494"/>
+  <path class="rel-line" d="M470 385 C510 475, 520 610, 520 790"/>
+  <path class="rel-line" d="M536 255 C675 380, 690 610, 628 790"/>
+  <path class="rel-line" d="M165 722 C170 760, 250 795, 440 878"/>
+
+  <!-- Relationship labels and cardinalities -->
+  <text class="cardinality" x="334" y="280">1</text>
+  <rect class="rel-label-bg" x="148" y="410" width="31" height="18"/>
+  <text class="rel-label" x="150" y="423">owns</text>
+  <text class="cardinality" x="174" y="450">0..*</text>
+
+  <text class="cardinality" x="335" y="414">1</text>
+  <rect class="rel-label-bg" x="292" y="408" width="42" height="18"/>
+  <text class="rel-label" x="294" y="421">sends</text>
+  <text class="cardinality" x="348" y="490">0..*</text>
+
+  <text class="cardinality" x="431" y="409">1</text>
+  <rect class="rel-label-bg" x="421" y="411" width="49" height="18"/>
+  <text class="rel-label" x="423" y="424">receives</text>
+  <text class="cardinality" x="441" y="490">0..*</text>
+
+  <text class="cardinality" x="480" y="410">1</text>
+  <rect class="rel-label-bg" x="500" y="585" width="42" height="18"/>
+  <text class="rel-label" x="502" y="598">sends</text>
+  <text class="cardinality" x="524" y="790">0..*</text>
+
+  <text class="cardinality" x="548" y="270">1</text>
+  <rect class="rel-label-bg" x="644" y="585" width="55" height="18"/>
+  <text class="rel-label" x="646" y="598">receives</text>
+  <text class="cardinality" x="632" y="790">0..*</text>
+
+  <text class="cardinality" x="144" y="745">1</text>
+  <rect class="rel-label-bg" x="137" y="748" width="51" height="18"/>
+  <text class="rel-label" x="139" y="761">receives</text>
+  <text class="cardinality" x="423" y="864">0..*</text>
+
+  <!-- User card -->
+  <g transform="translate(360 40)">
+    <rect class="card" x="0" y="0" width="176" height="345" rx="8"/>
+    <rect class="card-header" x="0" y="0" width="176" height="45" rx="8"/>
+    <rect class="card-header" x="0" y="28" width="176" height="17"/>
+    <text class="title" x="88" y="29" text-anchor="middle">User</text>
+    <line class="divider" x1="0" y1="45" x2="176" y2="45"/>
+
+    <text class="field" x="12" y="70">+Integer id</text>
+    <text class="field" x="12" y="88">+String name</text>
+    <text class="field" x="12" y="106">+String email</text>
+    <text class="field" x="12" y="124">+String nickname</text>
+    <text class="field" x="12" y="142">+String password</text>
+    <text class="field" x="12" y="160">+String course</text>
+    <text class="field" x="12" y="178">+Text bio</text>
+    <text class="field" x="12" y="196">+String avatar_initials</text>
+    <text class="field" x="12" y="214">+DateTime created_at</text>
+    <text class="field" x="12" y="232">+DateTime last_login</text>
+
+    <line class="divider" x1="0" y1="265" x2="176" y2="265"/>
+    <text class="field" x="12" y="295">+avatar()</text>
+    <text class="field" x="12" y="314">+set_password()</text>
+    <text class="field" x="12" y="333">+check_password()</text>
+  </g>
+
+  <!-- Skill card -->
+  <g transform="translate(76 455)">
+    <rect class="card" x="0" y="0" width="178" height="268" rx="7"/>
+    <rect class="card-header" x="0" y="0" width="178" height="45" rx="7"/>
+    <rect class="card-header" x="0" y="28" width="178" height="17"/>
+    <text class="title" x="89" y="29" text-anchor="middle">Skill</text>
+    <line class="divider" x1="0" y1="45" x2="178" y2="45"/>
+
+    <text class="field" x="12" y="72">+Integer id</text>
+    <text class="field" x="12" y="92">+Integer user_id</text>
+    <text class="field" x="12" y="112">+String name</text>
+    <text class="field" x="12" y="132">+String category</text>
+    <text class="field" x="12" y="152">+String level</text>
+    <text class="field" x="12" y="172">+Text description</text>
+    <text class="field" x="12" y="192">+DateTime created_at</text>
+    <text class="field" x="12" y="212">+DateTime updated_at</text>
+
+    <line class="divider" x1="0" y1="236" x2="178" y2="236"/>
+    <text class="field" x="12" y="256">+to_dict()</text>
+  </g>
+
+  <!-- Message card -->
+  <g transform="translate(304 494)">
+    <rect class="card" x="0" y="0" width="187" height="189" rx="7"/>
+    <rect class="card-header" x="0" y="0" width="187" height="45" rx="7"/>
+    <rect class="card-header" x="0" y="28" width="187" height="17"/>
+    <text class="title" x="93.5" y="29" text-anchor="middle">Message</text>
+    <line class="divider" x1="0" y1="45" x2="187" y2="45"/>
+
+    <text class="field" x="12" y="72">+Integer id</text>
+    <text class="field" x="12" y="92">+Integer sender_id</text>
+    <text class="field" x="12" y="112">+Integer receiver_id</text>
+    <text class="field" x="12" y="132">+Text body</text>
+    <text class="field" x="12" y="152">+DateTime timestamp</text>
+  </g>
+
+  <!-- Request card -->
+  <g transform="translate(439 792)">
+    <rect class="card" x="0" y="0" width="210" height="266" rx="7"/>
+    <rect class="card-header" x="0" y="0" width="210" height="45" rx="7"/>
+    <rect class="card-header" x="0" y="28" width="210" height="17"/>
+    <text class="title" x="105" y="29" text-anchor="middle">Request</text>
+    <line class="divider" x1="0" y1="45" x2="210" y2="45"/>
+
+    <text class="field" x="12" y="72">+Integer id</text>
+    <text class="field" x="12" y="92">+Integer skill_id</text>
+    <text class="field" x="12" y="112">+Integer from_user_id</text>
+    <text class="field" x="12" y="132">+Integer to_user_id</text>
+    <text class="field" x="12" y="152">+Text message</text>
+    <text class="field" x="12" y="172">+String status</text>
+    <text class="field" x="12" y="192">+DateTime created_at</text>
+    <text class="field" x="12" y="212">+Boolean to_user_seen</text>
+    <text class="field" x="12" y="232">+Boolean from_user_seen</text>
+  </g>
+</svg>

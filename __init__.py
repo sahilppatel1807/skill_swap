@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf import CSRFProtect
@@ -19,6 +20,7 @@ def create_app(config_class=None):
         config_class = Config
 
     app = Flask(__name__)
+    os.makedirs(app.instance_path, exist_ok=True)
     app.config.from_object(config_class)
 
     if not app.config.get('SECRET_KEY'):

@@ -254,6 +254,20 @@ class SkillSwapE2ETests(unittest.TestCase):
         self.assertTrue(conn.is_displayed())
         self.assertIn('bob_e2e', conn.text)
 
+    # TC21 — login with nickname redirects away from /login
+    def test_11_login_with_nickname(self):
+        self._login('alice_e2e', 'AlicePass1')
+        self.assertNotIn('login', self.driver.current_url)
+
+    # TC22
+    #  — home page hero section is visible to anonymous user
+    def test_12_home_page_hero_visible(self):
+        self.driver.get(BASE + '/')
+        hero = WebDriverWait(self.driver, 5).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '.hero-section'))
+        )
+        self.assertTrue(hero.is_displayed())
+        self.assertIn('SkillSwap', self.driver.page_source)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
